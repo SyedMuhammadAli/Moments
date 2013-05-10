@@ -16,8 +16,9 @@
 	<div data-role="header" >
 		<h1>Moments</h1>
 	</div><!-- /header -->
-
-	<div data-role="content">	
+	
+	<div class="warning"><?php echo $this->session->flashdata("status"); ?></div>
+	<div data-role="content">
 		<form action="<?php echo site_url('home/login'); ?>" method="post" data-ajax="false">
  
 			<fieldset data-role="fieldcontain"> 
@@ -86,7 +87,7 @@
 	</div><!-- /header -->
 
 	<div data-role="content">
-		<form action="process.cfm" method="post">
+		<form action="<?php echo site_url('home/forgot'); ?>" method="post" data-ajax="false">
  
 			<fieldset data-role="fieldcontain"> 
 				<label for="email">Enter your Email Address:</label>

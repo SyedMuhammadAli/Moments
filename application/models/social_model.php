@@ -20,6 +20,15 @@ class Social_model extends CI_Model {
 		}
 	}
 	
+	function get_moment_by_id($moment_id){
+		$this->db->select('moments.user_id as user_id, moment_id, username, msg, time');
+		$this->db->from("moments");
+		$this->db->where("moments.moment_id", $moment_id);
+		$this->db->join("users", "moments.user_id = users.user_id");
+		
+		return $this->db->get()->row();
+	}
+	
 	//This function gets the comments for a specific moment.
 	function get_comments_for_moment($moment_id)
 	{
@@ -31,12 +40,7 @@ class Social_model extends CI_Model {
 		
 		$query = $this->db->get();
 		
-		if ($query->num_rows() > 0){
-			return $query->result();
-		}
-		else{
-			return null;
-		}
+		return $query->result();
 	}
 	
 	//This function inserts a new moment added by any user.

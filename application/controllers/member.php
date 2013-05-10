@@ -3,9 +3,12 @@
 class Member extends CI_Controller {
 	function __construct(){
 		parent::__construct();
+        $this->title = "Moments";
         
-        if(!$this->session->userdata("is_logged_in"))
-            die("<h3>Authorization Failed</h3>");
+        if(!$this->session->userdata("is_logged_in")){
+            $this->session->set_flashdata("status", "You must be logged in to view this page.");
+            redirect("home/index");
+        }
         
 		$this->load->model("social_model");
 		
@@ -13,7 +16,24 @@ class Member extends CI_Controller {
 	}
 	
 	function index(){
-		$this->load->view("member_view");
+		$moments = $this->social_model->get_moments_for_user($this->session->userdata("uid"));
+		
+		$data = array("title" => $this->title, "moments" => $moments);
+		$this->load->view("home_view", $data);
+	}
+	
+	function view($id = null){
+		if(!$id) show_404();
+		
+		$moment = $this->social_model->get_moment_by_id($id);
+		
+		if(!$moment) show_404();
+		
+		$comments = $this->social_model->get_comments_for_moment($moment->moment_id);
+		
+		$moment->comments = $comments;
+		
+		$this->load->view("show_moment", array("moment" => $moment));
 	}
 	
 	function submit_moment(){
@@ -45,17 +65,6 @@ class Member extends CI_Controller {
 		redirect("member/index");
 	}
 	
-	function get_moments(){
-		$moments = $this->social_model->get_moments_for_user($this->session->userdata("uid"));
-		
-		foreach($moments as $m){
-			$m->msg = parse_smileys($m->msg, base_url()."images/smileys/");
-			$m->comments = $this->social_model->get_comments_for_moment($m->moment_id);
-		}
-		
-		echo json_encode($moments);
-	}
-	
 	function submit_comment(){
 		
 		$uid = $this->input->post('uid');
@@ -75,9 +84,5 @@ class Member extends CI_Controller {
 		
 		$this->social_model->save_comment($comment);
 		$this->session->set_flashdata("status", "Comment posted successfully.");
-	}
-	
-	function get_comments(){
-		echo base_url();
 	}
 }
