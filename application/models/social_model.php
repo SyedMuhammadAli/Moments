@@ -5,23 +5,33 @@ class Social_model extends CI_Model {
 	//This function gets all the moments for the specific user.
 	function get_moments_for_user($user_id)
 	{
-		//This will provide us with the moment's msgs against the particular USER ID.
-		$this->db->select('moments.user_id as user_id, username, moment_id, msg, time');
+		/*
+		$this->db->select('moments.user_id as user_id, username, dp, moment_id, msg, time');
 		$this->db->from('moments');
 		$this->db->where('moments.user_id',$user_id);
 		$this->db->join("users", "moments.user_id = users.user_id");
 		
 		$query = $this->db->get(); //This executes the query.
 		
-		if ($query->num_rows() > 0){
-			return $query->result(); //This returns the array.
-		} else {
-			return null; //If no moments exists.
-		}
+		return $query->result();*/
+		
+		$q = <<<HERE
+		SELECT u.username, u.dp, m.user_id, m.moment_id, m.msg, m.time
+		FROM moments m, users u
+		WHERE m.user_id
+		IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
+			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id} UNION
+			SELECT ${user_id})
+		AND m.user_id = u.user_id
+		ORDER BY m.time DESC
+		LIMIT 5;
+HERE;
+		
+		return $this->db->query($q)->result();
 	}
 	
 	function get_moment_by_id($moment_id){
-		$this->db->select('moments.user_id as user_id, moment_id, username, msg, time');
+		$this->db->select('moments.user_id as user_id, moment_id, username, dp, msg, time');
 		$this->db->from("moments");
 		$this->db->where("moments.moment_id", $moment_id);
 		$this->db->join("users", "moments.user_id = users.user_id");
@@ -33,7 +43,7 @@ class Social_model extends CI_Model {
 	function get_comments_for_moment($moment_id)
 	{
 		//This will provide us with the comments.
-		$this->db->select('comment_id, comments.user_id as user_id, username, comments.moment_id as moment_id, msg, time');
+		$this->db->select('comment_id, comments.user_id as user_id, username, dp, comments.moment_id as moment_id, msg, time');
 		$this->db->from('comments');
 		$this->db->where('comments.moment_id',$moment_id);
 		$this->db->join("users", "comments.user_id = users.user_id");
@@ -55,7 +65,6 @@ class Social_model extends CI_Model {
 		$this->db->insert('comments', $comment_detail);
 	}
 	
-	//********************* task2 started from here********************.
 	function add_friends_request($user_id, $friend_id)
 	{
 		$requests = array(
@@ -93,5 +102,31 @@ class Social_model extends CI_Model {
 		$this->db->insert('moments_with', $moments);
 	}
 	
+	function update_profile($user_id, $profile){
+		$this->db->update("users", $profile, array("user_id" => $user_id));
+	}
+	
+	function get_editable_profile($user_id){
+		$this->db->select("birthdate, phone, gender");
+		$this->db->where("user_id", $user_id);
+		return $this->db->get("users")->row_array();
+	}
+	
+	function bed_function($status){
+		$moment = array(
+		'user_id' => $this->session->userdata("uid"),
+		'media_id' => null,
+		'location_id' => null,
+		'msg' => "default_msg_bed_function",
+		'time' => time()
+		);
+		
+		if($status == "awake")
+			$moment["msg"] = "I'm awake.";
+		else if($status == "sleep")
+			$moment["msg"] = "I'm sleeping.";
+		
+		$this->db->insert('moments', $moment);
+	}
 }
 ?>

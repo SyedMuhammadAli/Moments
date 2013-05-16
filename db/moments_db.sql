@@ -16,6 +16,7 @@ CREATE TABLE users (
   birthdate DATE,
   phone VARCHAR(12),
   gender CHAR(1),
+  dp varchar(24) NOT NULL DEFAULT 'default.jpg',
   PRIMARY KEY(user_id)
 );
 

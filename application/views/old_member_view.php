@@ -317,38 +317,7 @@
  <!-----------------------Friends Page Ends ------------------->
  
  <!-----------------------Add Friends Page Begins ------------->
- <div data-role="page" id="home-friends-addfriends">
-	<div data-role="header" data-position="fixed" data-fullscreen="true">
-	    <h4> Add Friends </h4><a href="#home" data-icon="home" data-iconpos="notext">Home</a>
-		<div data-role="navbar" ><ul><li><a href="#home-friends" >Friends</a></li><li><a href="#home-notifications" >Notifications</a></li><li><a href="#home-search">Search</a></li><li><a href="#settings" >Settings</a></li></ul></div>
-	  	<a href="<?php echo site_url('home/logout'); ?>">Sign out</a>
-	</div>
-  	<div data-role="content"> 
-  		<h4 style="text-align:center"> Friends </h4>
-		<form id="form1" method="post">
-		<input type="text" name="search" placeholder="Search Moments">
-		<input type="submit" value="Search">
-		</form>
 
-		<a href="#" >logo1 Contacts<br>
-		Add friends from your contacts</a>
-		<hr>
-		<a href="#">logo2 Facebook<br>
-		Add friends from Facebook</a>
-		<hr>
-	</div>
-	<div data-role="footer" data-position="fixed" data-fullscreen="true">
-  	<div data-role="navbar" >
-		<ul >
-			<li><a href="#" data-role="button" ><?php echo img("images/icons/Pictures-Canon-icon.png"); ?>>Photos</a></li>
-			<li><a href="#" data-role="button"><?php echo img("images/icons/Location-icon.png"); ?>>Location</a></li>
-			<li><a href="#music" data-role="button"><?php echo img("images/icons/Music-Library-icon.png"); ?>>Music</a></li>
-			<li><a href="#post"  data-role="button"><?php echo img("images/icons/Comment-add-icon.png"); ?>>Comment</a></li>
-			<li><a href="#plus_moon" data-role="button" ><?php echo img("images/icons/Tent-Sleep-icon.png"); ?>>Sleep</a></li>
-		</ul>
-	</div>
-  </div>
-</div>
 <!--------------------------Add Friend Page Ends ------------------->
 <!--------------------------Find Friend Page Begins ------------------->
 <div data-role="page" id="home-friends-findfriends">
