@@ -131,14 +131,29 @@ HERE;
 	}
 	
 	//find people that are not already friends ! NEEDS QUERY CORRECTION
-	function find_friends($usr){
-		if(!strlen($usr)) return array();	
+	function find_friends($friends_username){
+		if(!strlen($friends_username)) return array();	
 		
+		/*
 		$this->db->select("user_id, username, fname, lname, gender, dp");
 		$this->db->from("users");
 		$this->db->like("username", $usr);
+		*/
 		
-		return $this->db->get()->result();
+		$user_id = $this->session->userdata("uid");
+		
+		$q = <<<HERE
+		SELECT user_id, username
+		FROM users
+		WHERE username LIKE "%{$friends_username}%" AND user_id
+		NOT IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = {$user_id} UNION
+		SELECT user_id FROM user_friend_assoc WHERE friend_id = {$user_id} UNION
+		SELECT {$user_id})
+		ORDER BY user_id
+		LIMIT 10;
+HERE;
+		
+		return $this->db->query($q)->result();
 	}
 }
 ?>
