@@ -130,8 +130,24 @@ class Member extends CI_Controller {
 		redirect("member/view/{$mid}");
 	}
 	
-	
 	function search_friend(){
-		$this->load->view("add_friend", array("title" => $this->title));
+		$data["title"] = $this->title;
+		$data["friends"] = array();
+		
+		if($this->input->post("find_friend_btn"))
+			$data["friends"] = $this->social_model->find_friends( $this->input->post("friend_username") );
+		
+		$this->load->view("add_friend", $data);
+	}
+	
+	function add_friend($friend_id = null){
+		if(is_numeric($friend_id)){
+			$this->social_model->add_friends_request($friend_id);
+			
+			$this->session->set_flashdata("status", "Friend request sent.");
+			redirect("member/search_friend");
+		} else {
+			show_404();
+		}
 	}
 }

@@ -24,7 +24,7 @@ class Social_model extends CI_Model {
 			SELECT ${user_id})
 		AND m.user_id = u.user_id
 		ORDER BY m.time DESC
-		LIMIT 5;
+		LIMIT 10;
 HERE;
 		
 		return $this->db->query($q)->result();
@@ -65,15 +65,16 @@ HERE;
 		$this->db->insert('comments', $comment_detail);
 	}
 	
-	function add_friends_request($user_id, $friend_id)
+	function add_friends_request($friend_id)
 	{
 		$requests = array(
-               'user_id' => $user_id,
-               'friend_id' => $friend_id
-            );
-			
+		'user_id' => $this->session->userdata("uid"),
+        'friend_id' => $friend_id
+        );
+		
+		//check here if friend does not exists.
+		
 		$this->db->insert('user_friend_assoc', $requests);
-
 	}
 	
 	function accept_friends_request($user_id, $friend_id)
@@ -127,6 +128,17 @@ HERE;
 			$moment["msg"] = "I'm sleeping.";
 		
 		$this->db->insert('moments', $moment);
+	}
+	
+	//find people that are not already friends ! NEEDS QUERY CORRECTION
+	function find_friends($usr){
+		if(!strlen($usr)) return array();	
+		
+		$this->db->select("user_id, username, fname, lname, gender, dp");
+		$this->db->from("users");
+		$this->db->like("username", $usr);
+		
+		return $this->db->get()->result();
 	}
 }
 ?>
