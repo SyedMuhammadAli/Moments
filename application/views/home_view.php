@@ -23,7 +23,7 @@
 			<?php echo img("images/profile_pictures/{$m->dp}"); ?>
 			<h1><?php echo $m->username; ?></h1>
 			<p><?php echo parse_smileys($m->msg, $smileys_path); ?></p>
-			<p class="ui-li-count"><?php echo date("l", $m->time); ?></p>
+			<p class="ui-li-count"><?php echo "{$m->time} ago"; ?></p>
 			</a>
 		</li>
 		<?php endforeach; ?>

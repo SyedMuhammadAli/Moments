@@ -16,11 +16,38 @@ class Member extends CI_Controller {
 		$this->load->helper("smiley");
 	}
 	
+	private function humanTiming($time)
+	{
+
+		$time = time() - $time; // to get the time since that moment
+
+		$tokens = array (
+		    31536000 => 'year',
+		    2592000 => 'month',
+		    604800 => 'week',
+		    86400 => 'day',
+		    3600 => 'hour',
+		    60 => 'minute',
+		    1 => 'second'
+		);
+
+		foreach ($tokens as $unit => $text) {
+		    if ($time < $unit) continue;
+		    $numberOfUnits = floor($time / $unit);
+		    return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+		}
+
+	}
+	
 	//member home page
 	function index(){
 		$moments = $this->social_model->get_moments_for_user($this->session->userdata("uid"));
 		
+		foreach($moments as $m)
+			$m->time = $this->humanTiming($m->time);
+		
 		$data = array("title" => $this->title, "moments" => $moments, "smileys_path" => $this->path_to_smileys);
+		
 		$this->load->view("home_view", $data);
 	}
 	

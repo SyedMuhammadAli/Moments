@@ -4,37 +4,56 @@ class Home extends CI_Controller
 {  
 	function __construct(){
 		parent::__construct();
+		
+		if($this->session->userdata("is_logged_in")){
+			redirect("member/index");
+			return;
+		}
+		
 		$this->load->model('auth_model');
 		$this->load->model('social_model');
 	}
 	
 	function index(){
-	    $this->load->view("auth_view");
+		$this->load->view("auth_view");
 	}
 	
 	function register(){
-	    $firstname	= $this->input->post('fname');
-	    $lastname	= $this->input->post('lname');
-	    $email		= $this->input->post('email');
-	    $username	= $this->input->post('username');
-	    $password	= $this->input->post('password');
-	    $rand		= openssl_random_pseudo_bytes( 16 );
-	    $password	= hash("sha256",$password.$rand);
+		$this->load->library("form_validation");
 		
-	    $data = array(
-	    'lname' => $lastname,
-	    'fname' => $firstname,
-	    'username' => $username,
-	    'email' => $email,
-	    'pswd' => $password,
-	    'salt' => $rand
-	    );
+		$this->form_validation->set_rules('username', 'Username', 'required|min_length[4]|alpha_dash|max_length[32]');
+		$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+		$this->form_validation->set_rules('password2', 'Password', 'required|min_length[6]|matches[password]');
+		$this->form_validation->set_rules('fname', 'Fname', 'required|alpha|max_length[30]');
+		$this->form_validation->set_rules('lname', 'Lname', 'required|alpha|max_length[30]');
+		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|min_length[6]|max_length[48]');
 	    
-	    $this->auth_model->create_user($data);
-	    
-	    $this->session->set_flashdata("is_registered", "yes");
-	    
-	    redirect("home/index", "location");
+		if($this->form_validation->run() == FALSE){
+			echo validation_errors();
+		} else {
+			$firstname	= $this->input->post('fname');
+			$lastname	= $this->input->post('lname');
+			$email		= $this->input->post('email');
+			$username	= $this->input->post('username');
+			$password	= $this->input->post('password');
+			$rand		= openssl_random_pseudo_bytes( 16 );
+			$password	= hash("sha256",$password.$rand);
+		
+			$data = array(
+			'lname' => $lastname,
+			'fname' => $firstname,
+			'username' => $username,
+			'email' => $email,
+			'pswd' => $password,
+			'salt' => $rand
+			);
+			
+			$this->auth_model->create_user($data);
+			
+			$this->session->set_flashdata("is_registered", "yes");
+			
+			redirect("home/index", "location");
+		}
     }
    
     function login(){
