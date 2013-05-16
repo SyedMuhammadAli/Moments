@@ -21,12 +21,12 @@ class Home extends CI_Controller
 	function register(){
 		$this->load->library("form_validation");
 		
-		$this->form_validation->set_rules('username', 'Username', 'required|min_length[4]|alpha_dash|max_length[32]');
-		$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
-		$this->form_validation->set_rules('password2', 'Password', 'required|min_length[6]|matches[password]');
-		$this->form_validation->set_rules('fname', 'Fname', 'required|alpha|max_length[30]');
-		$this->form_validation->set_rules('lname', 'Lname', 'required|alpha|max_length[30]');
-		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|min_length[6]|max_length[48]');
+		$this->form_validation->set_rules('username', 'Username', 'required|xss_clean|min_length[4]|alpha_dash|max_length[32]');
+		$this->form_validation->set_rules('password', 'Password', 'required|xss_clean|min_length[6]');
+		$this->form_validation->set_rules('password2', 'Password', 'required|xss_clean|min_length[6]|matches[password]');
+		$this->form_validation->set_rules('fname', 'Fname', 'required|xss_clean|alpha|max_length[30]');
+		$this->form_validation->set_rules('lname', 'Lname', 'required|xss_clean|alpha|max_length[30]');
+		$this->form_validation->set_rules('email', 'Email', 'required|xss_clean|valid_email|min_length[6]|max_length[48]');
 	    
 		if($this->form_validation->run() == FALSE){
 			echo validation_errors();

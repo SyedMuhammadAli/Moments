@@ -177,4 +177,8 @@ class Member extends CI_Controller {
 			show_404();
 		}
 	}
+	
+	function search_media(){
+		$this->load->view("media_view", array("title" => $this->title));
+	}
 }
