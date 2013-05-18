@@ -88,15 +88,34 @@ class Member extends CI_Controller {
 		if($this->input->post("save-btn")){
 			$dob = $this->input->post("birthdate");
 			$phone = $this->input->post("phone");
-			$gender = $this->input->post("male") == "on" ? "m" : "f";
+			$gender = $this->input->post("gender");
 			
-			$this->social_model->update_profile($this->session->userdata("uid"), array(
-				"birthdate" => $dob,
-				"phone" => $phone,
-				"gender" => $gender )
-			);
+			//Upload dp code
+			$config["upload_path"] = "./images/profile_pictures/";
+			$config["allowed_types"] = "jpg|png";
+			$config["max_size"] = 10;
+			$config["max_width"] = 100;
+			$config["max_height"] = 100;
+			$config["file_name"] = $this->session->userdata("username");
+			$config["overwrite"] = true;
 			
-			$this->session->set_flashdata("status", "Profile updated successfully.");
+			$this->load->library("upload", $config);
+			$dp_upload = $this->upload->do_upload("profile_picture");
+			$uldata = $this->upload->data();
+			//end upload
+			
+			$profile = array( "birthdate" => $dob, "phone" => $phone, "gender" => $gender);
+			
+			if($dp_upload) $profile["dp"] = $uldata["file_name"];
+			
+			$this->social_model->update_profile($this->session->userdata("uid"), $profile);
+			
+			
+			if(!$dp_upload and $uldata["client_name"] != "") //if ul failed, and client tried to ul
+				$this->session->set_flashdata("status", $this->upload->display_errors());
+			else
+				$this->session->set_flashdata("status", "Profile updated successfully.");
+			
 			redirect("member/settings");
 		} else {
 			$data = $this->social_model->get_editable_profile( $this->session->userdata("uid") );
@@ -180,5 +199,9 @@ class Member extends CI_Controller {
 	
 	function search_media(){
 		$this->load->view("media_view", array("title" => $this->title));
+	}
+	
+	function add_media(){
+		//add media to db
 	}
 }

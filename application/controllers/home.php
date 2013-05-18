@@ -5,10 +5,11 @@ class Home extends CI_Controller
 	function __construct(){
 		parent::__construct();
 		
+		/*
 		if($this->session->userdata("is_logged_in")){
 			redirect("member/index");
 			return;
-		}
+		}*/
 		
 		$this->load->model('auth_model');
 		$this->load->model('social_model');

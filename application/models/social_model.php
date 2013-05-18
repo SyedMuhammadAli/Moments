@@ -134,16 +134,10 @@ HERE;
 	function find_friends($friends_username){
 		if(!strlen($friends_username)) return array();	
 		
-		/*
-		$this->db->select("user_id, username, fname, lname, gender, dp");
-		$this->db->from("users");
-		$this->db->like("username", $usr);
-		*/
-		
 		$user_id = $this->session->userdata("uid");
 		
 		$q = <<<HERE
-		SELECT user_id, username
+		SELECT user_id, username, fname, lname, dp
 		FROM users
 		WHERE username LIKE "%{$friends_username}%" AND user_id
 		NOT IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = {$user_id} UNION
