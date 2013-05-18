@@ -12,6 +12,7 @@ class Member extends CI_Controller {
         }
         
 		$this->load->model("social_model");
+		$this->load->model("media_model");
 		
 		$this->load->helper("smiley");
 	}
@@ -43,8 +44,12 @@ class Member extends CI_Controller {
 	function index(){
 		$moments = $this->social_model->get_moments_for_user($this->session->userdata("uid"));
 		
-		foreach($moments as $m)
+		foreach($moments as $m){
 			$m->time = $this->humanTiming($m->time);
+			
+			if($m->media_id)
+				$m->media = $this->media_model->findById($m->media_id);
+		}
 		
 		$data = array("title" => $this->title, "moments" => $moments, "smileys_path" => $this->path_to_smileys);
 		
@@ -67,6 +72,7 @@ class Member extends CI_Controller {
 	}
 	
 	function add_moment(){
+		$this->session->keep_flashdata("media_id");
 		$this->load->view("add_moment", array("title" => $this->title));
 	}
 	
@@ -127,8 +133,9 @@ class Member extends CI_Controller {
 	
 	function submit_moment(){
 		
-		$lid = null; //media id - may be null
-		$mid = null; //location id - may be null
+		$lid = null; //location id - may be null
+		$mid = $this->session->flashdata("media_id") ? $this->session->flashdata("media_id") : null;
+		
 		$uid = $this->session->userdata("uid");
 		$moment_text = $this->input->post('moment_text');
 		
@@ -141,11 +148,11 @@ class Member extends CI_Controller {
 		$current_time = time();
 		
 		$moment = array(
-		'user_id' => $uid,
-		'media_id' => $mid,
-		'location_id' => $lid,
-		'msg' => $moment_text,
-		'time' => $current_time
+			'user_id' => $uid,
+			'media_id' => $mid,
+			'location_id' => $lid,
+			'msg' => $moment_text,
+			'time' => $current_time
 		);
 		
 		$this->social_model->save_moment($moment);
@@ -201,7 +208,43 @@ class Member extends CI_Controller {
 		$this->load->view("media_view", array("title" => $this->title));
 	}
 	
-	function add_media(){
-		//add media to db
+	function add_media($media_id = null){
+		if(!$media_id) show_404();
+		
+		$media = $this->media_model->findById($media_id);
+		
+		if(!$media){ //record cache
+			$media = file_get_contents("https://itunes.apple.com/lookup?id={$media_id}");
+			$media = json_decode($media, true);
+			$media = $media["results"][0];
+			
+			$this->media_model->save(
+				$media_id,
+				$media["kind"], 
+				$media["artistName"], 
+				$media["trackName"], 
+				$media["artworkUrl100"],
+				$media["previewUrl"]
+			);
+		}
+		
+		//Save media moment
+		$moment = array(
+			'user_id' => $this->session->userdata("uid"),
+			'media_id' => $media_id,
+			'location_id' => null,
+			'msg' => "",
+			'time' => time()
+		);
+		
+		$this->social_model->save_moment($moment);
+		//end save moment
+		
+		$this->session->set_flashdata("media_id", $media_id);
+		redirect("member/index");
+	}
+	
+	function check_in(){
+		$this->load->view("checkin_view", array("title" => $this->title));
 	}
 }

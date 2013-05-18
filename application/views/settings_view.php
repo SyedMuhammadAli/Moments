@@ -2,23 +2,30 @@
  
 <div data-role="content"> 
 	<h3 style="text-align:center;">Settings</h3>
-	<h3> Automatic </h3>
 
 	<form action="<?php echo site_url('member/settings'); ?>" enctype="multipart/form-data" method="post" data-ajax="false">
 		<h4> Me </h4>
 		<hr/>
-		<input type="file" name="profile_picture" size="20" />
+		<label for="dp">Upload Profile Picture</label>
+		<input id="dp" type="file" name="profile_picture" size="20" />
 		<br />
 
 		<hr />
-		<input type="text" placeholder="Phone Number" name="phone" value="<?php echo $phone; ?>" /><br />
-		<input type="date" placeholder="Birthday" name="birthdate" value="<?php echo $birthdate; ?>" required /><br />
 		
-		<label for="Male">Male</label>
-		<input type="radio" name="gender" value="m" class="custom" <?php echo $gender=='m'?'checked="yes"':''; ?> />
-		<label for="Female">Female</label> 
-		<input type="radio" name="gender" value="f" class="custom" <?php echo $gender=='f'?'checked="yes"':''; ?> />
-
+		<fieldset data-role="controlgroup" data-type="horizontal">
+			<label for="male">Male</label>
+			<input id="male" type="radio" name="gender" value="m" class="custom" <?php if($gender=='m') echo 'checked="checked"'; ?> />
+			
+			<label for="female">Female</label> 
+			<input id="female" type="radio" name="gender" value="f" class="custom" <?php if($gender=='f') echo 'checked="checked"'; ?> />
+		</fieldset>
+		<br />
+		
+		<label for="phone">Phone</label>
+		<input id="phone" type="text" placeholder="Phone Number" name="phone" value="<?php echo $phone; ?>" /><br />
+		<label for="dob">Birthday</label>
+		<input id="dob" type="date" placeholder="Birthday" name="birthdate" value="<?php echo $birthdate; ?>" required /><br />
+		
 		<input type="submit" name="save-btn" value="Save" />
 		<br />
 	</form>

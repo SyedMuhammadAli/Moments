@@ -4,6 +4,7 @@
 	<title><?php echo $title; ?></title>
 
 	<?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
+	<?php echo link_tag("css/harmony.css"); ?>
 	<?php echo link_tag("css/style.css"); ?>
 	<?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
 	<?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
@@ -29,4 +30,4 @@
 				$("#status").hide();
 		});
 	</script>
-	<div id="status" class="info"><?php echo $this->session->flashdata("status"); ?></div>
+	<!-- div id="status" class="info"><?php echo $this->session->flashdata("status"); ?></div -->

@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://localhost/moments';
+$config['base_url']	= 'http://192.168.10.2/moments';
 
 /*
 |--------------------------------------------------------------------------

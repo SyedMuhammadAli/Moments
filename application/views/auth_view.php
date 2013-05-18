@@ -4,7 +4,7 @@
   <title>Moments</title>
   
   <?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
-  <?php echo link_tag("css/style.css"); ?>
+  <?php echo link_tag("css/harmony.css"); ?>
   <?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
   <?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
   
@@ -17,7 +17,6 @@
 		<h1>Moments</h1>
 	</div><!-- /header -->
 	
-	<div class="warning"><?php echo $this->session->flashdata("status"); ?></div>
 	<div data-role="content">
 		<form action="<?php echo site_url('home/login'); ?>" method="post" data-ajax="false">
  

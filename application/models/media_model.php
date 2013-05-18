@@ -4,45 +4,74 @@ class Media_model extends CI_Model {
 
 	function __construct()
     {
-        // Call the Model constructor
         parent::__construct();
     }
     
-	function get_movie_category_id()
+	private function get_movie_category_id()
 	{
-	
 		$this->db->select('category_id');
 		$this->db->from('media_category');
 		$this->db->where('name','movie');
 		
-		$query = $this->db->get();
-		return $query->result();
+		$query = $this->db->get()->row();
+		return $query->category_id;
 	}
 	
-	function get_music_category_id()
+	private function get_music_category_id()
 	{
-	
 		$this->db->select('category_id');
 		$this->db->from('media_category');
-		$this->db->where('name','music');
+		$this->db->where('name','musicTrack');
 		
-		$query = $this->db->get();
-		return $query->result();
-		
+		$query = $this->db->get()->row();
+		return $query->category_id;
 	}
 	
-	function get_book_category_id()
+	private function get_book_category_id()
 	{
-	
 		$this->db->select('category_id');
 		$this->db->from('media_category');
-		$this->db->where('name','book');
+		$this->db->where('name','ebook');
 		
-		$query = $this->db->get();
-		return $query->result();
-		
+		$query = $this->db->get()->row();
+		return $query->category_id;
 	}
 	
+	function get_category_id($name){
+		switch($name){
+			case "song":
+			case "music-video":
+				return $this->get_music_category_id();
+			case "feature-movie": return $this->get_movie_category_id();
+			case "ebook": return $this->get_book_category_id();
+			case "default": die("Unknown category passed to media model line 45.");
+		}
+	}
+	
+	function save($media_id, $cat_name, $artist_name, $track_name, $artwork_url, $preview_url){
+		$cat_id = $this->get_category_id($cat_name);
+		
+		$this->db->insert("media", array(
+			"media_id" => $media_id,
+			"category_id" => $cat_id,
+			"artistName" => $artist_name,
+			"trackName" => $track_name,
+			"artworkUrl" => $artwork_url,
+			"previewUrl" => $preview_url,
+			"date_added" => time() )
+		);
+	}
+	
+	function findById($media_id){
+		$this->db->select("*");
+		$this->db->from("media");
+		$this->db->where(array("media_id" => $media_id));
+		$this->db->join("media_category", "media.category_id = media_category.category_id");
+		return $this->db->get()->row();
+	}
+	
+	/*
+	//Not useful anymore
 	function get_all_books()
 	{
 		$this->db->select('*');
@@ -73,7 +102,7 @@ class Media_model extends CI_Model {
 		return $query->result();
 	}
 	
-	private function media_like($media_name, $media_category)
+	function media_like($media_name, $media_category)
 	{
 		$this->db->select('*');
 		$this->db->from('media');// I use aliasing make things joins easier
@@ -107,7 +136,7 @@ class Media_model extends CI_Model {
 		
 		return $like_book_found;
 	}
-    
+    */
 }
 
 ?>

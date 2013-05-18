@@ -16,7 +16,7 @@ class Social_model extends CI_Model {
 		return $query->result();*/
 		
 		$q = <<<HERE
-		SELECT u.username, u.dp, m.user_id, m.moment_id, m.msg, m.time
+		SELECT u.username, u.dp, m.user_id, m.moment_id, m.media_id, m.msg, m.time
 		FROM moments m, users u
 		WHERE m.user_id
 		IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
