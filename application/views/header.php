@@ -11,7 +11,7 @@
 </head>
 <body>
 <div data-role="page">
-	<div data-role="header" data-position="fixed" >
+	<div data-role="header"> <!--data-position="fixed"-->
 		<h4> Moments </h4>
 		<a href="<?php echo site_url('member/index'); ?>" data-icon="home" data-iconpos="notext">Home</a>
 			<div data-role="navbar" >
