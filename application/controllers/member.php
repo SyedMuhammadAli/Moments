@@ -29,7 +29,7 @@ class Member extends CI_Controller {
 		    86400 => 'day',
 		    3600 => 'hour',
 		    60 => 'minute',
-		    1 => 'second'
+		    1 => 'second',
 		);
 
 		foreach ($tokens as $unit => $text) {
@@ -64,9 +64,9 @@ class Member extends CI_Controller {
 		
 		if(!$moment) show_404();
 		
-		$comments = $this->social_model->get_comments_for_moment($moment->moment_id);
-		
-		$moment->comments = $comments;
+		$moment->media = $this->media_model->findById($moment->media_id);
+		$moment->comments = $this->social_model->get_comments_for_moment($moment->moment_id);
+		$moment->time = $this->humanTiming($moment->time);
 		
 		$this->load->view("show_moment", array("title" => $this->title, "moment" => $moment, "smileys_path" => $this->path_to_smileys));
 	}
@@ -144,15 +144,13 @@ class Member extends CI_Controller {
 			
 		if($this->input->post('lid'))
 			$lid = $this->input->post('lid');
-			
-		$current_time = time();
 		
 		$moment = array(
 			'user_id' => $uid,
 			'media_id' => $mid,
 			'location_id' => $lid,
 			'msg' => $moment_text,
-			'time' => $current_time
+			'time' => time()-1 //add one sec
 		);
 		
 		$this->social_model->save_moment($moment);
@@ -167,14 +165,12 @@ class Member extends CI_Controller {
 		$mid = $this->input->post('mid');
 		$comment_text = $this->input->post('comment_text');
 		
-		$current_time = time();
-		
 		$comment = array(
 		
 		'user_id' => $uid,
 		'moment_id' => $mid,
 		'msg' => $comment_text,
-		'time' => $current_time
+		'time' => time()
 		
 		);
 		

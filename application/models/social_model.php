@@ -31,7 +31,7 @@ HERE;
 	}
 	
 	function get_moment_by_id($moment_id){
-		$this->db->select('moments.user_id as user_id, moment_id, username, dp, msg, time');
+		$this->db->select('moments.user_id as user_id, moment_id, username, dp, msg, media_id, time');
 		$this->db->from("moments");
 		$this->db->where("moments.moment_id", $moment_id);
 		$this->db->join("users", "moments.user_id = users.user_id");
