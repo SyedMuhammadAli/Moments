@@ -1,13 +1,13 @@
 ﻿<!DOCTYPE html> 
 <html> 
-  <head> 
-  <title>Moments</title>
-  
-  <?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
-  <?php echo link_tag("css/harmony.css"); ?>
-  <?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
-  <?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
-  
+	<head> 
+	<title>Moments</title>
+
+	<?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
+	<?php echo link_tag("css/harmony.css"); ?>
+	<?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
+	<?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
+
 </head> 
 <body> 
 <!-------------------Sign In page starts ------------------->
@@ -30,9 +30,11 @@
 				<input type="password" name="password" id="password">
 			</fieldset>
 			<input type="submit" value="Sign In!">
-		</form>	
-		<a href="#register" style="color:#111; text-decoration:none; font-size:small;">Signup</a>
-		<a href="#forgot" style="float:right; color:#111; text-decoration:none; font-size:small;">forgot password</a>
+		</form>
+		<hr />
+		<a href="#forgot" data-role="button">Forgot Password?</a>
+		<a href="#register" data-role="button">Signup</a>
+		<p style="text-align: center;">By signin in, I accept Moment's <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>.</p>
 	</div><!-- /content -->
 
 </div><!-- /page -->

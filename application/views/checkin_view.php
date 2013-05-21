@@ -1,6 +1,5 @@
 <?php include("header.php"); ?>
 
-<?php echo script_tag("js/cordova-2.5.0.js"); ?>
 <script type="text/javascript" charset="utf-8">
 
     // Wait for Cordova to load
@@ -10,7 +9,7 @@
     // Cordova is ready
     //
     function onDeviceReady() {
-        navigator.geolocation.watchPosition(onSuccess, onError, { maximumAge: 3000, timeout: 5000, enableHighAccuracy: false });
+        navigator.geolocation.watchPosition(onSuccess, onError, { maximumAge: 3000, timeout: 10000, enableHighAccuracy: false });
     }
 
     // onSuccess Geolocation

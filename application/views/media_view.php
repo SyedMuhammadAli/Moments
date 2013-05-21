@@ -5,14 +5,14 @@ $(document).ready(function(){
 	$("#media-search-btn").click(function(){
 		$("#result").empty();
 		
-		$("#ajax-loading").show();
+		$.mobile.loading("show"); //show loading
 		$.ajax({
 		  url: "https://itunes.apple.com/search",
 		  type: "get",
 		  data: { term : $("#media-name").val(), entity : $("input[type='radio']:checked").val(), limit: 10},
 		  dataType: "jsonp"
 		}).done(function( result ) {
-			$("#ajax-loading").hide();
+			$.mobile.loading("hide"); //hide loading
 			var records = result.results;
 		
 			for(i in records){
@@ -70,7 +70,6 @@ $(document).ready(function(){
 		<?php endforeach; ?>
 		-->
 	</ul>
-	<div id="ajax-loading" style="text-align: center;"><img style="opacity:0.3;" src="<?php echo base_url().'/images/harmony-icons/ajax-loader.gif'; ?>" /></div>
 </div>
     
 <?php include("footer.php"); ?>
