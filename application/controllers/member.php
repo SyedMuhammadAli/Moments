@@ -49,6 +49,9 @@ class Member extends CI_Controller {
 			
 			if($m->media_id)
 				$m->media = $this->media_model->findById($m->media_id);
+				
+			if($m->location_id)
+				$m->location = $this->social_model->findLocationById($m->location_id);
 		}
 		
 		$data = array("title" => $this->title, "moments" => $moments, "smileys_path" => $this->path_to_smileys);
@@ -132,18 +135,16 @@ class Member extends CI_Controller {
 	}
 	
 	function submit_moment(){
+		$lid = intval( $this->input->post('lid') );
+		$mid = intval( $this->input->post('mid') );
 		
-		$lid = null; //location id - may be null
-		$mid = $this->session->flashdata("media_id") ? $this->session->flashdata("media_id") : null;
+		if(!$lid) $lid = null;
+		if(!$mid) $mid = null;
+		
+		//die($lid . "/" . $mid); //for testing
 		
 		$uid = $this->session->userdata("uid");
 		$moment_text = $this->input->post('moment_text');
-		
-		if($this->input->post('mid'))
-			$mid = $this->input->post('mid');
-			
-		if($this->input->post('lid'))
-			$lid = $this->input->post('lid');
 		
 		$moment = array(
 			'user_id' => $uid,
@@ -162,7 +163,7 @@ class Member extends CI_Controller {
 	function submit_comment(){
 		
 		$uid = $this->session->userdata("uid");
-		$mid = $this->input->post('mid');
+		$mid = $this->input->post('mid'); //moment_id - replace with moment_id
 		$comment_text = $this->input->post('comment_text');
 		
 		$comment = array(
@@ -209,7 +210,7 @@ class Member extends CI_Controller {
 		
 		$media = $this->media_model->findById($media_id);
 		
-		if(!$media){ //record cache
+		if(!$media){ //if media was not found then add it
 			$media = file_get_contents("https://itunes.apple.com/lookup?id={$media_id}");
 			$media = json_decode($media, true);
 			$media = $media["results"][0];
@@ -222,8 +223,10 @@ class Member extends CI_Controller {
 				$media["artworkUrl100"],
 				$media["previewUrl"]
 			);
+			
 		}
 		
+		/*
 		//Save media moment
 		$moment = array(
 			'user_id' => $this->session->userdata("uid"),
@@ -235,12 +238,51 @@ class Member extends CI_Controller {
 		
 		$this->social_model->save_moment($moment);
 		//end save moment
+		*/
 		
-		$this->session->set_flashdata("media_id", $media_id);
-		redirect("member/index");
+		$this->session->set_flashdata("mid", $media_id);
+		$this->session->set_flashdata("status", "Media file saved successfully.");
+		
+		redirect("member/add_moment");
 	}
 	
 	function check_in(){
-		$this->load->view("checkin_view", array("title" => $this->title));
+		if($this->input->post("is_posting")){
+			$lid = $this->social_model->check_in(
+				$this->input->post("latitude"),
+				$this->input->post("longitude"),
+				$this->input->post("formatted_address")
+			);
+			
+			/*
+			$this->social_model->save_moment( array(
+				'user_id' => $this->session->userdata("uid"),
+				'media_id' => null,
+				'location_id' => $lid,
+				'msg' => "Checked in at ",
+				'time' => time()-1)
+			);
+			*/
+			
+			$this->session->set_flashdata("lid", $lid);
+			$this->session->set_flashdata("status", "Located saved successfully.");
+			
+			echo '{"lid": ' . $lid . '}';
+		} else {
+			$this->load->view("checkin_view", array("title" => $this->title));
+		}
+	}
+	
+	function receive_picture(){
+		//default not public -- hardcoded for now
+		
+		$picture_base64 = $this->input->post("picBase64");
+		
+		if(strlen($picture_base64) == 0) die("Failed to post image.");
+		
+		$this->media_model->save_picture( $picture_base64, false);
+		$this->session->set_flashdata("status", "Picture posted successfully.");
+		
+		echo "Posted successfully.";
 	}
 }

@@ -11,7 +11,8 @@
 	<?php echo script_tag("js/cordova-2.5.0.js"); ?>
 	
 	<script type="text/javascript" charset="utf-8">
-	// Define a click binding for all anchors in the page
+	
+	/*/ Define a click binding for all anchors in the page
 	$( "a" ).on( "click", function( event ){
 
 	  // Prevent the usual navigation behavior
@@ -27,33 +28,56 @@
 	  // an AJAX request for JSON data and render a template into the page.
 	  alterContent( this.attr("href") );
 	});
+	*/
 	
-	
-	/*Picture notification
 	// Wait for Cordova to load
-    //
     document.addEventListener("deviceready", onDeviceReady, false);
 
     // Cordova is ready
     //
     function onDeviceReady() {
-        alert("Device Ready.");
+    	//pass
     }
 	
-    function onPrompt(results) {
-        alert("You selected button number " + results.buttonIndex + " and entered " + results.input1);
+	function getUserLocation(){
+		$.mobile.loading("show");
+		navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true });
+	}
+	
+    // onSuccess Geolocation
+    function onSuccess(position) {
+    	$.get("http://maps.googleapis.com/maps/api/geocode/json", { latlng: position.coords.latitude + "," + position.coords.longitude, sensor: "true" })
+    	.done( function(res){
+    		$.post("http://192.168.10.2/moments/index.php/member/check_in", {
+    			latitude: position.coords.latitude,
+    			longitude: position.coords.longitude,
+    			formatted_address: res.results[0].formatted_address,
+    			is_posting: true
+    		})
+    		.done( function(res){
+    			$("#location-field").val( JSON.parse(res).lid );
+    			
+    			//post moment
+				$.post("<?php echo site_url('member/submit_moment'); ?>", $("#moment-form").serialize())
+				.done(function() { window.location="http://192.168.10.2/moments/index.php/member/"; })
+				.fail(function() { alert("Failed to post Moment."); });
+    		})
+    		.fail( function(){
+    			alert("Failed to save location.");
+    		})
+    		.always( function(){ $.mobile.loading("hide"); } )
+    	})
+    	.fail( function(){
+    		alert("Failed to get location from Google.");
+    		$.mobile.loading("hide"); //only hide early if fails
+    	});
+    }
+
+    // onError Callback receives a PositionError object
+    function onError(error) {
+        alert('Message: ' + error.message + '\n' + 'Code: ' + error.code);
     }
     
-    function showPrompt() {
-        navigator.notification.prompt(
-            'Please enter your name',  // message
-            onPrompt,                  // callback to invoke
-            'Registration',            // title
-            ['Ok','Exit']              // buttonLabels
-        );
-    }
-	//End picture notification */
-	
 	</script>
 	
 </head>
@@ -66,16 +90,10 @@
 				<ul>
 					<li><a href="<?php echo site_url('member/search_friend'); ?>">Friends</a></li>
 					<li><a href="#home-notifications">Notifications</a></li>
-					<li><a href="#home-search">Search</a></li>
+					<li><a href="#home-search">Find Moments</a></li>
 					<li><a href="<?php echo site_url('member/settings'); ?>">Settings</a></li>
 				</ul>
 			</div>
 		<a href="<?php echo site_url('home/logout'); ?>">Sign out</a>
 	</div>
-	<script>
-		$(document).ready(function(){
-			if($("#status").length) //hide when empty
-				$("#status").hide();
-		});
-	</script>
 	<!-- div id="status" class="info"><?php echo $this->session->flashdata("status"); ?></div -->

@@ -70,6 +70,14 @@ class Media_model extends CI_Model {
 		return $this->db->get()->row();
 	}
 	
+	function save_picture($picture_base64, $is_public, $album_id = null){
+		$this->db->insert("pictures", array(
+			"user_id" => $this->session->userdata("uid"),
+			"album_id" => $album_id,
+			"picture_base64" => $picture_base64,
+			"is_public" => $is_public ) );
+	}
+	
 	/*
 	//Not useful anymore
 	function get_all_books()

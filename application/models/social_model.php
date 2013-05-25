@@ -16,7 +16,7 @@ class Social_model extends CI_Model {
 		return $query->result();*/
 		
 		$q = <<<HERE
-		SELECT u.username, u.dp, m.user_id, m.moment_id, m.media_id, m.msg, m.time
+		SELECT u.username, u.dp, m.user_id, m.moment_id, m.location_id, m.media_id, m.msg, m.time
 		FROM moments m, users u
 		WHERE m.user_id
 		IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
@@ -148,6 +148,21 @@ HERE;
 HERE;
 		
 		return $this->db->query($q)->result();
+	}
+	
+	function check_in($lat, $lng, $addr){
+		$this->db->insert("location", array(
+			"latitude" => $lat,
+			"longitude" => $lng,
+			"address" => $addr,
+			"time" => time() )
+		);
+		
+		return $this->db->insert_id();
+	}
+	
+	function findLocationById($loc_id){
+		return $this->db->get_where("location", array("location_id" => $loc_id))->row();
 	}
 }
 ?>

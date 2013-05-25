@@ -1,7 +1,6 @@
 <?php include("header.php"); ?>
 
 <script type="text/javascript" charset="utf-8">
-
     // Wait for Cordova to load
     //
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -9,21 +8,32 @@
     // Cordova is ready
     //
     function onDeviceReady() {
-        navigator.geolocation.watchPosition(onSuccess, onError, { maximumAge: 3000, timeout: 10000, enableHighAccuracy: false });
+    	$.mobile.loading("show");
+        navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true });
     }
 
     // onSuccess Geolocation
     //
     function onSuccess(position) {
-        var element = document.getElementById('geolocation');
-        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
-                            'Longitude: '          + position.coords.longitude             + '<br />' +
-                            'Altitude: '           + position.coords.altitude              + '<br />' +
-                            'Accuracy: '           + position.coords.accuracy              + '<br />' +
-                            'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
-                            'Heading: '            + position.coords.heading               + '<br />' +
-                            'Speed: '              + position.coords.speed                 + '<br />' +
-                            'Timestamp: '          +                                   position.timestamp          + '<br />';
+    	$.get("http://maps.googleapis.com/maps/api/geocode/json", { latlng: position.coords.latitude + "," + position.coords.longitude, sensor: "true" })
+    	.done( function(res){
+    		$.post("http://192.168.10.2/moments/index.php/member/check_in", {
+    			latitude: position.coords.latitude,
+    			longitude: position.coords.longitude,
+    			formatted_address: res.results[0].formatted_address,
+    			is_posting: true
+    		})
+    		.done( function(){
+    			alert("Checkin saved."); 
+    			window.location="http://192.168.10.2/moments/index.php/member/add_moment";
+    		})
+    		.fail( function(){ alert("Failed to save check in."); } )
+    		.always( function(){ $.mobile.loading("hide"); } )
+    	})
+    	.fail( function(){
+    		alert("Failed to get location from Google.");
+    		$.mobile.loading("hide"); //only hide early if fails
+    	});
     }
 
     // onError Callback receives a PositionError object
@@ -36,6 +46,6 @@
 </script>
 
 <body>
-    <p id="geolocation">Finding geolocation...</p>
+    <h3>Computing geolocation...</h3>
 </body>
 <?php include("footer.php"); ?>
