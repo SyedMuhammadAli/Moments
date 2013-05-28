@@ -4,7 +4,7 @@
 	<title><?php echo $title; ?></title>
 
 	<?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
-	<?php echo link_tag("css/harmony.css"); ?>
+	<?php echo link_tag("css/{$this->session->userdata('theme')}.css"); ?>
 	<?php echo link_tag("css/style.css"); ?>
 	<?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
 	<?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
@@ -38,6 +38,26 @@
     function onDeviceReady() {
     	//pass
     }
+    
+    /*
+    function checkIn(res, position){
+    	$.post("http://192.168.10.2/moments/index.php/member/check_in", {
+    		latitude: position.coords.latitude,
+    		longitude: position.coords.longitude,
+    		formatted_address: res.results[0].formatted_address,
+    		is_posting: true
+    	})
+    	.done( function(res){
+    		//expilicitly mark change since value change programatically does not fire event
+    		$("#location-field").val( JSON.parse(res).lid ).change();
+    	})
+    	.fail( function(){
+    		alert("Failed to save location.");
+    	})
+    	.always( function(){
+    		$.mobile.loading("hide");
+    	});
+    }
 	
 	function getUserLocation(){
 		$.mobile.loading("show");
@@ -47,26 +67,7 @@
     // onSuccess Geolocation
     function onSuccess(position) {
     	$.get("http://maps.googleapis.com/maps/api/geocode/json", { latlng: position.coords.latitude + "," + position.coords.longitude, sensor: "true" })
-    	.done( function(res){
-    		$.post("http://192.168.10.2/moments/index.php/member/check_in", {
-    			latitude: position.coords.latitude,
-    			longitude: position.coords.longitude,
-    			formatted_address: res.results[0].formatted_address,
-    			is_posting: true
-    		})
-    		.done( function(res){
-    			$("#location-field").val( JSON.parse(res).lid );
-    			
-    			//post moment
-				$.post("<?php echo site_url('member/submit_moment'); ?>", $("#moment-form").serialize())
-				.done(function() { window.location="http://192.168.10.2/moments/index.php/member/"; })
-				.fail(function() { alert("Failed to post Moment."); });
-    		})
-    		.fail( function(){
-    			alert("Failed to save location.");
-    		})
-    		.always( function(){ $.mobile.loading("hide"); } )
-    	})
+    	.done( function(res){ checkIn(res, position); } )
     	.fail( function(){
     		alert("Failed to get location from Google.");
     		$.mobile.loading("hide"); //only hide early if fails
@@ -77,7 +78,53 @@
     function onError(error) {
         alert('Message: ' + error.message + '\n' + 'Code: ' + error.code);
     }
+    */
     
+    /* Generic location function */
+    (function(){
+		location_id = document.createElement("input");
+		location_id.setAttribute("type", "hidden");
+		location_id.setAttribute("name", "location_id");
+		location_id.setAttribute("value", "undefined");
+    })(); //create location element for Global Namespace 
+    
+    function fetchUserLocation(){
+    	$.mobile.loading("show");
+		navigator.geolocation.getCurrentPosition( fetchLocationSuccess, fetchLocationError, { enableHighAccuracy: true });
+    }
+    
+    function fetchLocationSuccess(position){
+    	$.get("http://maps.googleapis.com/maps/api/geocode/json", { latlng: position.coords.latitude + "," + position.coords.longitude, sensor: "true" })
+    	.done( function(location_name){ updateLocationId(location_name, position); } )
+    	.fail( function(){ alert("Failed to get location from Google."); })
+    	.always( function(){ $.mobile.loading("hide"); } );
+    }
+    
+    function fetchLocationError(error){
+    	alert('Message: ' + error.message + '\n' + 'Code: ' + error.code);
+    }
+    
+    function updateLocationId(location_names, position){
+    	$.mobile.loading("show");
+    	
+    	$.post("<?php echo site_url('member/check_in'); ?>", {
+    		latitude: position.coords.latitude,
+    		longitude: position.coords.longitude,
+    		formatted_address: location_names.results[0].formatted_address,
+    		is_posting: true
+    	})
+    	.done( function(res){
+    		//expilicitly mark change since value change programatically does not fire event
+    		$(location_id).val( JSON.parse(res).lid ).change();
+    	})
+    	.fail( function(){
+    		alert("Failed to save location.");
+    	})
+    	.always( function(){
+    		$.mobile.loading("hide");
+    	});
+    }
+    /* End location function */
 	</script>
 	
 </head>

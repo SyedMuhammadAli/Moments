@@ -75,22 +75,11 @@ class Member extends CI_Controller {
 	}
 	
 	function add_moment(){
-		$this->session->keep_flashdata("media_id");
-		$this->load->view("add_moment", array("title" => $this->title));
-	}
-	
-	function go_to_sleep($status = null){
-		if(strlen($status) == 5) {
-			$status == "awake" ?
-				$this->social_model->bed_function("awake"):
-				$this->social_model->bed_function("sleep");
-			
-			$this->session->set_flashdata("status", "Moment added successfully.");
-			redirect(site_url("member"));
-			return;
-		}
+		//$this->session->keep_flashdata("media_id");
+		$data["title"] = $this->title;
+		$data["friends"] = $this->social_model->get_friends_list_for($this->session->userdata("uid"));
 		
-		$this->load->view("sleep_view", array("title" => $this->title));
+		$this->load->view("add_moment", $data);
 	}
 	
 	function settings(){
@@ -113,7 +102,14 @@ class Member extends CI_Controller {
 			$uldata = $this->upload->data();
 			//end upload
 			
-			$profile = array( "birthdate" => $dob, "phone" => $phone, "gender" => $gender);
+			//settings code
+			$theme_id = $this->input->post("theme_id");
+			$theme = $this->social_model->get_theme_by_id($this->input->post("theme_id"));
+
+			$this->session->set_userdata("theme", $theme->name);
+			//end settings
+			
+			$profile = array( "birthdate" => $dob, "phone" => $phone, "gender" => $gender, "theme_id" => $theme_id );
 			
 			if($dp_upload) $profile["dp"] = $uldata["file_name"];
 			
@@ -129,6 +125,7 @@ class Member extends CI_Controller {
 		} else {
 			$data = $this->social_model->get_editable_profile( $this->session->userdata("uid") );
 			$data["title"] = $this->title;
+			$data["all_theme"] = $this->social_model->get_all_themes();
 			
 			$this->load->view("settings_view", $data);
 		}
@@ -137,6 +134,9 @@ class Member extends CI_Controller {
 	function submit_moment(){
 		$lid = intval( $this->input->post('lid') );
 		$mid = intval( $this->input->post('mid') );
+		
+		$tag = $this->input->post("tagged_friends");
+		$tagged_friends = $tag == "" ? array() : explode(",", $tag); //fix for blank entry in array
 		
 		if(!$lid) $lid = null;
 		if(!$mid) $mid = null;
@@ -156,8 +156,12 @@ class Member extends CI_Controller {
 		
 		$this->social_model->save_moment($moment);
 		
+		$moment_id = $this->db->insert_id(); //dependency?
+		$this->social_model->tag_friends($moment_id, $tagged_friends);
+		
 		$this->session->set_flashdata("status", "Moment posted successfully.");
-		redirect("member/index");
+		
+		//redirect("member/index");
 	}
 	
 	function submit_comment(){

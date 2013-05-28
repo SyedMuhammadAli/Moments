@@ -12,6 +12,21 @@
 
 		<hr />
 		
+		<!-- theme selector -->
+		<label for="theme_id">Select Theme </label>
+
+		<?php 
+		
+		$options = array();
+
+		for($i=0; $i<count($all_theme); $i++)
+			$options[ $all_theme[$i]->theme_id ] = $all_theme[$i]->name;
+		
+		echo form_dropdown('theme_id', $options, $this->session->userdata("theme"));
+			
+		?>
+		<!-- end theme selector -->
+		
 		<fieldset data-role="controlgroup" data-type="horizontal">
 			<label for="male">Male</label>
 			<input id="male" type="radio" name="gender" value="m" class="custom" <?php if($gender=='m') echo 'checked="checked"'; ?> />

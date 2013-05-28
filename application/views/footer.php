@@ -76,6 +76,29 @@
       alert('Failed because: ' + message);
     }
     
+    /* sleep functions */
+    function goToBed(is_sleeping){
+    	$.mobile.loading("show");
+    	
+    	fetchUserLocation(); //get updated location
+    	
+    	$(location_id).change( function(){
+    		var moment_text = is_sleeping ? "I'm sleeping now." : "I'm awake.";
+    		
+    		var moment_object = {
+    			"lid" : $(location_id).val(),
+    			"mid" : undefined,
+    			"tagged_friends" : "",
+    			"moment_text" : moment_text
+    		}
+    		
+			$.post("<?php echo site_url('member/submit_moment'); ?>", moment_object)
+			.done( function(){ window.location = "<?php echo site_url('member'); ?>"; } )
+			.fail( function(){ alert("Failed."); } )
+			.always( function(){ $.mobile.loading("hide"); } );
+    	});
+    }
+    /* end sleep functions */
     </script>
   
   <!--
@@ -95,8 +118,8 @@
 	
 	<div data-role="popup" id="sleep-dialog" class="ui-content">
 		<h4>Would you like to go to sleep?</h4>
-		<a href="<?php echo site_url('member/go_to_sleep/sleep'); ?>" data-role="button">Go to Sleep</a>
-		<a href="<?php echo site_url('member/go_to_sleep/awake'); ?>" data-role="button">I'm Awake</a>
+		<a href="#" onclick="goToBed(true)" data-role="button">Go to Sleep</a>
+		<a href="#" onclick="goToBed(false)" data-role="button">I'm Awake</a>
 		<span style="padding: 5px 100px;"><span>
 		<a href="#" data-rel="back" data-role="button"> Cancel </a>
 	</div>

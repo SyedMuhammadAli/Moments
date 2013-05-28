@@ -80,7 +80,7 @@ HERE;
 	function accept_friends_request($user_id, $friend_id)
 	{
 	    
-		$has_accepted= true;
+		$has_accepted = true;
 		$data = array(
                'user_id' => $user_id,
                'friend_id' => $friend_id,
@@ -92,7 +92,7 @@ HERE;
 		$this->db->update('user_friend_assoc', $data); 
 	}
 	
-	function add_moments_with($moment_id, $user_id, $friend_id)
+	private function add_moments_with($moment_id, $user_id, $friend_id)
 	{
 		$moments = array(
 			   'moment_id' => $moment_id,
@@ -103,16 +103,23 @@ HERE;
 		$this->db->insert('moments_with', $moments);
 	}
 	
+	function tag_friends($moment_id, $friends_id){
+		foreach($friends_id as $fid){
+			$this->add_moments_with($moment_id, $this->session->userdata("uid"), $fid);
+		}
+	}
+	
 	function update_profile($user_id, $profile){
 		$this->db->update("users", $profile, array("user_id" => $user_id));
 	}
 	
 	function get_editable_profile($user_id){
-		$this->db->select("birthdate, phone, gender");
+		$this->db->select("theme_id, birthdate, phone, gender");
 		$this->db->where("user_id", $user_id);
 		return $this->db->get("users")->row_array();
 	}
 	
+	/* //marked for removal
 	function bed_function($status){
 		$moment = array(
 		'user_id' => $this->session->userdata("uid"),
@@ -129,6 +136,7 @@ HERE;
 		
 		$this->db->insert('moments', $moment);
 	}
+	*/
 	
 	//find people that are not already friends ! NEEDS QUERY CORRECTION
 	function find_friends($friends_username){
@@ -163,6 +171,31 @@ HERE;
 	
 	function findLocationById($loc_id){
 		return $this->db->get_where("location", array("location_id" => $loc_id))->row();
+	}
+	
+	function get_all_themes(){	 //TO GET ALL THEMES
+		return $this->db->get("themes")->result();
+	}
+
+	function get_theme_by_id($id){	 //TO GET THE THEME OF THIS ID
+		return $this->db->get_where("themes", array("theme_id" => $id))->row();
+	}
+	
+	function get_theme($user_id){	 //TO GET THE THEME OF CURRENT USER
+		$q = "SELECT * FROM themes WHERE theme_id = (SELECT theme_id FROM users WHERE user_id = {$user_id})";
+
+		return $this->db->query($q)->row();
+	}
+	
+	function get_friends_list_for($user_id){
+		$q = <<<HERE
+		SELECT user_id, username FROM users WHERE user_id IN (
+			SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
+			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id}
+		);
+HERE;
+
+		return $this->db->query($q)->result();
 	}
 }
 ?>

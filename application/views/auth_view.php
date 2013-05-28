@@ -4,10 +4,10 @@
 	<title>Moments</title>
 
 	<?php echo link_tag("js/jquery.mobile-1.3.1.min.css"); ?>
-	<?php echo link_tag("css/harmony.css"); ?>
+	<?php echo link_tag("css/{$this->session->userdata('theme')}.css"); ?>
 	<?php echo script_tag("js/jquery-1.9.1.min.js"); ?>
 	<?php echo script_tag("js/jquery.mobile-1.3.1.min.js"); ?>
-
+	
 </head> 
 <body> 
 <!-------------------Sign In page starts ------------------->

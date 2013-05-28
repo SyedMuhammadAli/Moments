@@ -8,7 +8,9 @@
 	font-size: 18;
 }
 
-li img { padding-right: 10px; }
+li img {
+	padding-right: 10px;
+}
 
 #moments-ul li {
 	padding-bottom:70px;
