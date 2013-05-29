@@ -88,7 +88,7 @@
 	</div><!-- /header -->
 
 	<div data-role="content">
-		<form action="<?php echo site_url('home/forgot'); ?>" method="post" data-ajax="false">
+		<form action="<?php echo site_url('home/forgot_password'); ?>" method="post" data-ajax="false">
  
 			<fieldset data-role="fieldcontain"> 
 				<label for="email">Enter your Email Address:</label>
@@ -96,7 +96,6 @@
 			</fieldset>
 			<input type="submit" value="Send">
 		</form>
-		<p>Check your inbox for Password Reset</p>
 	</div>
 	
 </div>

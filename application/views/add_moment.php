@@ -2,8 +2,9 @@
 
 <script>
 //get location if user submits the form
-
 $(document).ready( function(){
+
+$("#imageData").val(document.cookie);
 
 $( "input[type=checkbox]" ).on( "click", function() {
 	$("input:checked").attr('checked','checked'); //mark as check permanently
@@ -12,7 +13,7 @@ $( "input[type=checkbox]" ).on( "click", function() {
 function submitMoment(){
 	$.post($("#moment-form").attr("action"), $("#moment-form").serialize())
 	.done( function() {
-		window.location="http://192.168.10.2/moments/index.php/member/";
+		window.location="<?php echo site_url('member/'); ?>";
 	})
 	.fail( function() {
 		alert("Failed to post Moment.");
@@ -45,6 +46,7 @@ $("#moment-form-submit").click( function(e){
 		<input type="hidden" name="lid" id="location-field" />
 		<input type="hidden" name="mid" value="<?php echo $this->session->flashdata('mid'); ?>" />
 		<input type="hidden" name="tagged_friends" id="tagged-friends" value=""/>
+		<input type="hidden" name="moment_id" value="<?php echo isset($_GET['moment_id'])?$_GET['moment_id']:0; ?>" />
 		<input type="submit" id="moment-form-submit" value="post" />
 	</form>
 	<!-- end form -->

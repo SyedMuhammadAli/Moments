@@ -19,8 +19,8 @@ class Social_model extends CI_Model {
 		SELECT u.username, u.dp, m.user_id, m.moment_id, m.location_id, m.media_id, m.msg, m.time
 		FROM moments m, users u
 		WHERE m.user_id
-		IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
-			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id} UNION
+		IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} AND has_accepted = 1 UNION
+			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id} AND has_accepted = 1 UNION
 			SELECT ${user_id})
 		AND m.user_id = u.user_id
 		ORDER BY m.time DESC
@@ -79,17 +79,54 @@ HERE;
 	
 	function accept_friends_request($user_id, $friend_id)
 	{
-	    
-		$has_accepted = true;
-		$data = array(
-               'user_id' => $user_id,
-               'friend_id' => $friend_id,
-               'has_accepted' => $has_accepted
-            );
-			
-		$this->db->where('user_id', $user_id);
-		$this->db->where('friend_id', $friend_id);	
-		$this->db->update('user_friend_assoc', $data); 
+		/*
+		$user_id = logged in ser (ie: the friend who's going to see the request)
+		$friend_id = user who send the request.
+		
+		So user_id sent a request to friend_id ie: (user_id, friend_id, 0)
+		The friend (logged in user) will accept it by setting 3rd arg to 1
+		*/
+		
+		$this->db->where('user_id', $friend_id);
+		$this->db->where('friend_id', $user_id);
+		$this->db->update('user_friend_assoc', array('has_accepted' => 1)); 
+	}
+	
+	function get_friends_request($user_id){
+		/*
+		user story:
+		user_id sends request to friend_id
+		friend_id logs in and fetches the request by user_id and accepts it
+		*/
+		$q = <<<HERE
+		SELECT user_id, username, fname, lname, dp FROM users WHERE user_id IN (
+			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id} AND has_accepted = 0
+		);
+HERE;
+		
+		return $this->db->query($q)->result();
+	}
+	
+	//find people that are not already friends ! NEEDS QUERY CORRECTION
+	function find_friends($friends_username){
+		if(!strlen($friends_username)) return array();	
+		
+		$user_id = $this->session->userdata("uid");
+		
+		$q = <<<HERE
+		SELECT user_id, username, fname, lname, dp
+
+		FROM users
+		WHERE username LIKE "%{$friends_username}%" AND user_id
+		NOT IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = {$user_id} UNION
+		SELECT user_id FROM user_friend_assoc WHERE friend_id = {$user_id} UNION
+
+		SELECT {$user_id})
+		ORDER BY user_id
+		LIMIT 10;
+HERE;
+		
+		return $this->db->query($q)->result();
 	}
 	
 	private function add_moments_with($moment_id, $user_id, $friend_id)
@@ -138,26 +175,6 @@ HERE;
 	}
 	*/
 	
-	//find people that are not already friends ! NEEDS QUERY CORRECTION
-	function find_friends($friends_username){
-		if(!strlen($friends_username)) return array();	
-		
-		$user_id = $this->session->userdata("uid");
-		
-		$q = <<<HERE
-		SELECT user_id, username, fname, lname, dp
-		FROM users
-		WHERE username LIKE "%{$friends_username}%" AND user_id
-		NOT IN (SELECT friend_id FROM user_friend_assoc WHERE user_id = {$user_id} UNION
-		SELECT user_id FROM user_friend_assoc WHERE friend_id = {$user_id} UNION
-		SELECT {$user_id})
-		ORDER BY user_id
-		LIMIT 10;
-HERE;
-		
-		return $this->db->query($q)->result();
-	}
-	
 	function check_in($lat, $lng, $addr){
 		$this->db->insert("location", array(
 			"latitude" => $lat,
@@ -189,13 +206,34 @@ HERE;
 	
 	function get_friends_list_for($user_id){
 		$q = <<<HERE
-		SELECT user_id, username FROM users WHERE user_id IN (
+		SELECT user_id, username, fname, lname, dp FROM users WHERE user_id IN (
 			SELECT friend_id FROM user_friend_assoc WHERE user_id = ${user_id} UNION
 			SELECT user_id FROM user_friend_assoc WHERE friend_id = ${user_id}
 		);
 HERE;
 
 		return $this->db->query($q)->result();
+	}
+	
+	function get_notifications(){
+		$uid = $this->session->userdata("uid");
+		
+		$this->db->select("username, fname, lname, from_user_id, is_read, time");
+		$this->db->from("notifications");
+		$this->db->where("to_user_id", $uid);
+		$this->db->join("users", "notifications.from_user_id = users.user_id");
+		$this->db->order_by("time", "desc");
+		$this->db->limit(10);
+		
+		$notifications = $this->db->get()->result();
+		
+		$this->db->update(
+			"notifications",
+			array("is_read" => true), 
+			array("to_user_id" => $uid, "is_read" => false)
+		);//mark all as read
+		
+		return $notifications;
 	}
 }
 ?>

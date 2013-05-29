@@ -131,12 +131,23 @@ class Member extends CI_Controller {
 		}
 	}
 	
-	function submit_moment(){
-		$lid = intval( $this->input->post('lid') );
-		$mid = intval( $this->input->post('mid') );
+	function submit_moment(){ //if moment_id is present then update
+		$moment_id = $this->input->post("moment_id");
 		
 		$tag = $this->input->post("tagged_friends");
 		$tagged_friends = $tag == "" ? array() : explode(",", $tag); //fix for blank entry in array
+		
+		if($moment_id != 0){
+			$m = array( "msg" => $this->input->post("moment_text") );
+			$this->social_model->update_moment($m);
+			
+			$this->social_model->tag_friends($moment_id, $tagged_friends);
+			return;
+		}
+		//end of picture-moment code
+		
+		$lid = intval( $this->input->post('lid') );
+		$mid = intval( $this->input->post('mid') );
 		
 		if(!$lid) $lid = null;
 		if(!$mid) $mid = null;
@@ -161,6 +172,7 @@ class Member extends CI_Controller {
 		
 		$this->session->set_flashdata("status", "Moment posted successfully.");
 		
+		print_r($_POST);
 		//redirect("member/index");
 	}
 	
@@ -186,10 +198,12 @@ class Member extends CI_Controller {
 	
 	function search_friend(){
 		$data["title"] = $this->title;
-		$data["friends"] = array();
+		$data["people"] = array();
+		$data["friends_request"] = $this->social_model->get_friends_request($this->session->userdata("uid"));
+		$data["friends"] = $this->social_model->get_friends_list_for($this->session->userdata("uid"));
 		
 		if($this->input->post("find_friend_btn"))
-			$data["friends"] = $this->social_model->find_friends( $this->input->post("friend_username") );
+			$data["people"] = $this->social_model->find_friends( $this->input->post("friend_username") );
 		
 		$this->load->view("add_friend", $data);
 	}
@@ -203,6 +217,15 @@ class Member extends CI_Controller {
 		} else {
 			show_404();
 		}
+	}
+	
+	function accept_friends_req($friend_id = null){
+		if($friend_id == null) show_404();
+	
+		$this->social_model->accept_friends_request($this->session->userdata("uid"), $friend_id);
+		
+		//echo $this->db->last_query();
+		redirect("member/search_friend");
 	}
 	
 	function search_media(){
@@ -278,15 +301,41 @@ class Member extends CI_Controller {
 	}
 	
 	function receive_picture(){
-		//default not public -- hardcoded for now
-		
 		$picture_base64 = $this->input->post("picBase64");
+		$lid = $this->input->post("lid");
 		
-		if(strlen($picture_base64) == 0) die("Failed to post image.");
+		if(strlen($picture_base64) == 0)
+			die("Failed to post image.");
 		
-		$this->media_model->save_picture( $picture_base64, false);
+		//create container moment
+		$moment = array(
+			'user_id' => $this->session->userdata("uid"),
+			'media_id' => null,
+			'location_id' => $lid,
+			'msg' => "",
+			'time' => time()-1 //add one sec
+		);
+		
+		$this->social_model->save_moment($moment);
+		$moment_id = $this->db->insert_id(); //get id for moment just inserted
+		
+		//now save picture
+		$this->media_model->save_picture( $picture_base64, false, $moment_id /* ?? */);
+		$pic_id = $this->db->insert_id(); //get id for picture just inserted
+		
+		echo '{"moment_id":' . $moment_id . '}';
+		
 		$this->session->set_flashdata("status", "Picture posted successfully.");
+	}
+	
+	function notifications(){
+		$data["title"] = $this->title;
+		$data["notifications"] = $this->social_model->get_notifications();
 		
-		echo "Posted successfully.";
+		foreach($data["notifications"] as $n)
+			$n->time = $this->humanTiming($n->time) . " ago.";
+		
+		
+		$this->load->view("notifications", $data);
 	}
 }

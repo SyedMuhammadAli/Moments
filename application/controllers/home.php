@@ -82,5 +82,40 @@ class Home extends CI_Controller
         
         redirect("home/index");
     }
+    
+    //Author: Muhammad Ayub
+	function forgot_password(){
+		$email = $this->input->post("email");
+	
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => '465',
+			'smtp_user' => 'moments.mailagent@gmail.com',
+			'smpt_from_name' => 'Moments Team',
+			'smtp_pass' => 'moom3nts',
+			'newline' => '\r\n'
+		);
+		
+		$this->load->library('email', $config);
+		
+		$this->email->from($config['smpt_user'], $config['smpt_from_name']);
+		$this->email->to($email);
+		$this->email->subject('Recover Your Password');
+		$this->email->message('We are looking into your case. We will send you your new password when we are done. Thank you.');
+	
+		if($this->email->send())
+		{
+			echo "Okay.";
+			$this->session->set_flashdata("status", "Password reset email sent.");
+		}
+		else
+		{
+			echo $this->email->print_debugger();
+			$this->session->set_flashdata($this->email->print_debugger());
+		}
+		
+		//redirect("home/index"); //comment this for debugging
+	}
 }
 ?>

@@ -39,47 +39,6 @@
     	//pass
     }
     
-    /*
-    function checkIn(res, position){
-    	$.post("http://192.168.10.2/moments/index.php/member/check_in", {
-    		latitude: position.coords.latitude,
-    		longitude: position.coords.longitude,
-    		formatted_address: res.results[0].formatted_address,
-    		is_posting: true
-    	})
-    	.done( function(res){
-    		//expilicitly mark change since value change programatically does not fire event
-    		$("#location-field").val( JSON.parse(res).lid ).change();
-    	})
-    	.fail( function(){
-    		alert("Failed to save location.");
-    	})
-    	.always( function(){
-    		$.mobile.loading("hide");
-    	});
-    }
-	
-	function getUserLocation(){
-		$.mobile.loading("show");
-		navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true });
-	}
-	
-    // onSuccess Geolocation
-    function onSuccess(position) {
-    	$.get("http://maps.googleapis.com/maps/api/geocode/json", { latlng: position.coords.latitude + "," + position.coords.longitude, sensor: "true" })
-    	.done( function(res){ checkIn(res, position); } )
-    	.fail( function(){
-    		alert("Failed to get location from Google.");
-    		$.mobile.loading("hide"); //only hide early if fails
-    	});
-    }
-
-    // onError Callback receives a PositionError object
-    function onError(error) {
-        alert('Message: ' + error.message + '\n' + 'Code: ' + error.code);
-    }
-    */
-    
     /* Generic location function */
     (function(){
 		location_id = document.createElement("input");
@@ -136,7 +95,7 @@
 			<div data-role="navbar" >
 				<ul>
 					<li><a href="<?php echo site_url('member/search_friend'); ?>">Friends</a></li>
-					<li><a href="#home-notifications">Notifications</a></li>
+					<li><a href="<?php echo site_url('member/notifications'); ?>">Notifications</a></li>
 					<li><a href="#home-search">Find Moments</a></li>
 					<li><a href="<?php echo site_url('member/settings'); ?>">Settings</a></li>
 				</ul>

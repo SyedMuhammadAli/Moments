@@ -17,12 +17,22 @@
     // Called when a photo is successfully retrieved
     //
     function onPhotoDataSuccess(imageData) {
-    	$.mobile.loading("show"); //show loading
+    	fetchUserLocation();
     	
-		$.post("http://192.168.10.2/moments/index.php/member/receive_picture", { "picBase64" : "data:image/jpeg;base64," + imageData })
-		.done( function(res){ alert("posted successfully. res: " + res); } )
-		.fail( function(){ alert("failed to post."); } )
-		.always( function(){ $.mobile.loading("hide"); });
+    	$(location_id).change(function(){
+    		//alert("lid:" + $(location_id).val());
+    		
+    		$.mobile.loading("show"); //show loading for posting moment
+    		
+    		$.post("<?php echo site_url('member/receive_picture'); ?>", { "picBase64" : "data:image/jpeg;base64,"+imageData, "lid": $(location_id).val() })
+			.done( function(res){
+				//alert("Image posted. Moment Id: " + JSON.parse(res).moment_id );
+				window.location = "<?php echo site_url('member/add_moment/'); ?>" + "?moment_id=" + JSON.parse(res).moment_id;
+			})
+			.fail( function(){ alert("Failed to save image."); })
+			.always( function(){ $.mobile.loading("hide"); });
+    	});
+    	
     }
 
     // Called when a photo is successfully retrieved
@@ -99,6 +109,7 @@
     	});
     }
     /* end sleep functions */
+    
     </script>
   
   <!--
@@ -130,7 +141,7 @@
 	 	<div data-role="navbar" >
 	 		</style>
 			<ul id="footer-nav">
-				<li><a href="#picture-dialog" data-rel="popup" data-position-to="window" data-transition="pop"><?php echo img("images/icons/Pictures-Canon-icon.png"); ?>Pictures</a></li>
+				<li><a href="#picture-dialog" id="pic-dialog-link" data-rel="popup" data-position-to="window" data-transition="pop"><?php echo img("images/icons/Pictures-Canon-icon.png"); ?>Pictures</a></li>
 				<li><a href="<?php echo site_url('member/check_in'); ?>"><?php echo img("images/icons/Location-icon.png"); ?>Check In</a></li>
 				<li><a href="<?php echo site_url('member/search_media'); ?>"><?php echo img("images/icons/Music-Library-icon.png"); ?>Media</a></li>
 				<li><a href="<?php echo site_url('member/add_moment'); ?>" ><?php echo img("images/icons/Comment-add-icon.png"); ?>Moment</a></li>
