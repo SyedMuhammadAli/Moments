@@ -60,13 +60,13 @@ class Home extends CI_Controller
 		$newpass= hash("sha256",$field_pass.$user_salt);
 		
 		if($newpass==$password){
-			$theme = $this->social_model->get_theme($user["user_id"]);
-			
 			$this->session->set_userdata(array(
                 "is_logged_in" => true,
                 "uid" => $user["user_id"],
                 "username" => $user["username"],
-                "theme" => $theme->name
+                "theme" => $user["theme_name"], 
+                "dp" => $user["dp"],
+                "cover" => $user["cover"]
             ));
         }
 		
@@ -79,6 +79,8 @@ class Home extends CI_Controller
         $this->session->unset_userdata("is_logged_in");
         $this->session->unset_userdata("username");
         $this->session->unset_userdata("uid");
+        $this->session->unset_userdata("dp");
+        $this->session->unset_userdata("cover");
         
         redirect("home/index");
     }

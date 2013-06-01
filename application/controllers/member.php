@@ -3,9 +3,7 @@
 class Member extends CI_Controller {
 	function __construct(){
 		parent::__construct();
-        $this->title = "Moments";
-        $this->path_to_smileys = "http://localhost/moments/images/smileys";
-        
+
         if(!$this->session->userdata("is_logged_in")){
             $this->session->set_flashdata("status", "You must be logged in to view this page.");
             redirect("home/index");
@@ -17,6 +15,13 @@ class Member extends CI_Controller {
 		$this->load->helper("smiley");
 	}
 	
+	private function init_page_data(){
+		return array(
+			"title" => "Moments",
+			"smileys_path" => base_url("images/smileys")
+		);
+	}
+
 	private function humanTiming($time)
 	{
 
@@ -54,8 +59,9 @@ class Member extends CI_Controller {
 				$m->location = $this->social_model->findLocationById($m->location_id);
 		}
 		
-		$data = array("title" => $this->title, "moments" => $moments, "smileys_path" => $this->path_to_smileys);
-		
+		$data = $this->init_page_data();
+		$data["moments"] = $moments;
+
 		$this->load->view("home_view", $data);
 	}
 	
@@ -71,12 +77,14 @@ class Member extends CI_Controller {
 		$moment->comments = $this->social_model->get_comments_for_moment($moment->moment_id);
 		$moment->time = $this->humanTiming($moment->time);
 		
-		$this->load->view("show_moment", array("title" => $this->title, "moment" => $moment, "smileys_path" => $this->path_to_smileys));
+		$data = $this->init_page_data();
+		$data["moment"] = $moment;
+		$this->load->view("show_moment", $data);
 	}
 	
 	function add_moment(){
 		//$this->session->keep_flashdata("media_id");
-		$data["title"] = $this->title;
+		$data = $this->init_page_data();
 		$data["friends"] = $this->social_model->get_friends_list_for($this->session->userdata("uid"));
 		
 		$this->load->view("add_moment", $data);
@@ -87,7 +95,8 @@ class Member extends CI_Controller {
 			$dob = $this->input->post("birthdate");
 			$phone = $this->input->post("phone");
 			$gender = $this->input->post("gender");
-			
+			$theme_id = $this->input->post("theme_id");
+
 			//Upload dp code
 			$config["upload_path"] = "./images/profile_pictures/";
 			$config["allowed_types"] = "jpg|png";
@@ -98,33 +107,52 @@ class Member extends CI_Controller {
 			$config["overwrite"] = true;
 			
 			$this->load->library("upload", $config);
+			$this->load->initialize($config);
 			$dp_upload = $this->upload->do_upload("profile_picture");
-			$uldata = $this->upload->data();
+			$dp_uldata = $this->upload->data();
+
+			$dp_errors = $this->upload->display_errors();
 			//end upload
 			
-			//settings code
-			$theme_id = $this->input->post("theme_id");
-			$theme = $this->social_model->get_theme_by_id($this->input->post("theme_id"));
+			//Upload cover code
+			unset($config);
+			$config["upload_path"] = "./images/cover_pictures/";
+			$config["allowed_types"] = "jpg|png";
+			$config["max_size"] = 500;
+			$config["max_width"] = 700;
+			$config["max_height"] = 300;
+			$config["file_name"] = $this->session->userdata("username");
+			$config["overwrite"] = true;
+			
+			$this->load->library("upload", $config);
+			$this->load->initialize($config);
+			$cvr_upload = $this->upload->do_upload("cover_picture");
+			$cover_uldata = $this->upload->data();
 
-			$this->session->set_userdata("theme", $theme->name);
-			//end settings
+			$cover_errors = $this->upload->display_errors();
+			//end upload
 			
 			$profile = array( "birthdate" => $dob, "phone" => $phone, "gender" => $gender, "theme_id" => $theme_id );
 			
-			if($dp_upload) $profile["dp"] = $uldata["file_name"];
-			
+			if($dp_upload) $profile["dp"] = $dp_uldata["file_name"];
+
+			if($cvr_upload) $profile["cover"] = $cover_uldata["file_name"];
+
 			$this->social_model->update_profile($this->session->userdata("uid"), $profile);
-			
-			
-			if(!$dp_upload and $uldata["client_name"] != "") //if ul failed, and client tried to ul
-				$this->session->set_flashdata("status", $this->upload->display_errors());
+
+			$this->session->set_userdata("theme", $this->social_model->get_theme($this->session->userdata("uid"))->theme_name );
+
+			if(!$dp_upload and $dp_uldata["client_name"] != "") //if ul failed, and client tried to ul
+				$this->session->set_flashdata("status", $dp_errors);
+			elseif(!$cvr_upload and $cover_uldata["client_name"] != "") //if ul failed, and client tried to ul
+				$this->session->set_flashdata("status", $cover_errors);
 			else
 				$this->session->set_flashdata("status", "Profile updated successfully.");
 			
 			redirect("member/settings");
 		} else {
-			$data = $this->social_model->get_editable_profile( $this->session->userdata("uid") );
-			$data["title"] = $this->title;
+			$data = $this->init_page_data();
+			$data = $data + $this->social_model->get_editable_profile( $this->session->userdata("uid") );
 			$data["all_theme"] = $this->social_model->get_all_themes();
 			
 			$this->load->view("settings_view", $data);
@@ -197,7 +225,7 @@ class Member extends CI_Controller {
 	}
 	
 	function search_friend(){
-		$data["title"] = $this->title;
+		$data = $this->init_page_data();
 		$data["people"] = array();
 		$data["friends_request"] = $this->social_model->get_friends_request($this->session->userdata("uid"));
 		$data["friends"] = $this->social_model->get_friends_list_for($this->session->userdata("uid"));
@@ -229,7 +257,9 @@ class Member extends CI_Controller {
 	}
 	
 	function search_media(){
-		$this->load->view("media_view", array("title" => $this->title));
+		$data = $this->init_page_data();
+
+		$this->load->view("media_view", $data);
 	}
 	
 	function add_media($media_id = null){
@@ -296,7 +326,9 @@ class Member extends CI_Controller {
 			
 			echo '{"lid": ' . $lid . '}';
 		} else {
-			$this->load->view("checkin_view", array("title" => $this->title));
+			$data = $this->init_page_data();
+			
+			$this->load->view("checkin_view", $data);
 		}
 	}
 	
@@ -329,7 +361,7 @@ class Member extends CI_Controller {
 	}
 	
 	function notifications(){
-		$data["title"] = $this->title;
+		$data = $this->init_page_data();
 		$data["notifications"] = $this->social_model->get_notifications();
 		
 		foreach($data["notifications"] as $n)
@@ -337,5 +369,10 @@ class Member extends CI_Controller {
 		
 		
 		$this->load->view("notifications", $data);
+	}
+
+	function notification_count(){
+		$count = $this->social_model->notification_count();
+		echo '{"count":' . $count . '}';
 	}
 }

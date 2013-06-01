@@ -5,6 +5,7 @@ class Auth_model extends CI_Model
 	function get_user_by_username($username)
 	{
 		$this->db->where('username', $username);
+		$this->db->join("themes", "users.theme_id = themes.theme_id");
 		$user = $this->db->get('users');
 		
 		return $user->row_array();

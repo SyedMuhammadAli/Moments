@@ -193,11 +193,11 @@ HERE;
 	function get_all_themes(){	 //TO GET ALL THEMES
 		return $this->db->get("themes")->result();
 	}
-
-	function get_theme_by_id($id){	 //TO GET THE THEME OF THIS ID
+	
+	function get_theme_by_id($id){   //TO GET THE THEME OF THIS ID
 		return $this->db->get_where("themes", array("theme_id" => $id))->row();
 	}
-	
+
 	function get_theme($user_id){	 //TO GET THE THEME OF CURRENT USER
 		$q = "SELECT * FROM themes WHERE theme_id = (SELECT theme_id FROM users WHERE user_id = {$user_id})";
 
@@ -234,6 +234,17 @@ HERE;
 		);//mark all as read
 		
 		return $notifications;
+	}
+
+	function notification_count(){
+		$uid = $this->session->userdata("uid");
+		
+		$this->db->select("notification_id");
+		$this->db->from("notifications");
+		$this->db->where("to_user_id", $uid);
+		$this->db->where("is_read", 0);
+
+		return $this->db->count_all_results();
 	}
 }
 ?>

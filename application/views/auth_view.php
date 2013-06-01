@@ -14,7 +14,7 @@
 <div data-role="page" id="signin" data-title="Moments: Signin" >
 
 	<div data-role="header" >
-		<h1>Moments</h1>
+		<h4 style="padding:0px; margin:0 auto;"><?php echo img('images/icons/logo.png');?></h4>
 	</div><!-- /header -->
 	
 	<div data-role="content">

@@ -6,10 +6,11 @@
 	<form action="<?php echo site_url('member/settings'); ?>" enctype="multipart/form-data" method="post" data-ajax="false">
 		<h4> Me </h4>
 		<hr/>
+		<label for="dp">Upload Profile Cover</label>
+		<input id="cvr" type="file" name="cover_picture" size="20" />
+		<br />
 		<label for="dp">Upload Profile Picture</label>
 		<input id="dp" type="file" name="profile_picture" size="20" />
-		<br />
-
 		<hr />
 		
 		<!-- theme selector -->
@@ -20,9 +21,9 @@
 		$options = array();
 
 		for($i=0; $i<count($all_theme); $i++)
-			$options[ $all_theme[$i]->theme_id ] = $all_theme[$i]->name;
+			$options[ $all_theme[$i]->theme_id ] = $all_theme[$i]->theme_name;
 		
-		echo form_dropdown('theme_id', $options, $this->session->userdata("theme"));
+		echo form_dropdown('theme_id', $options, $theme_id);
 			
 		?>
 		<!-- end theme selector -->

@@ -84,6 +84,21 @@
     	});
     }
     /* End location function */
+
+    //notification updates
+    function updateNotificationCount(){
+    	$.get("<?php echo site_url('member/notification_count'); ?>")
+    	.done( function(res){
+    		$("#notification").html("<span class=\"ui-btn-inner\"><span class=\"ui-btn-text\">Notifications (" + JSON.parse(res).count + ")</span></span>");
+    	})
+    	.fail( function(){
+    		//do nothing for now
+    	});
+    }
+
+    $(document).ready(function(){
+    	setInterval(updateNotificationCount, 5000); //update every eight seconds
+    })
 	</script>
 	
 </head>
@@ -92,14 +107,16 @@
 	<div data-role="header"> <!--data-position="fixed"-->
 		<h4 style="padding:0px; margin:0 auto;"><?php echo img('images/icons/logo.png');?></h4>
 		<a href="<?php echo site_url('member/index'); ?>" data-icon="home" data-iconpos="notext">Home</a>
-			<div data-role="navbar" >
-				<ul>
-					<li><a href="<?php echo site_url('member/search_friend'); ?>">Friends</a></li>
-					<li><a href="<?php echo site_url('member/notifications'); ?>">Notifications</a></li>
-					<li><a href="#home-search">Find Moments</a></li>
-					<li><a href="<?php echo site_url('member/settings'); ?>">Settings</a></li>
-				</ul>
-			</div>
+		
+		<div data-role="navbar">
+			<ul>
+				<li><a href="<?php echo site_url('member/search_friend'); ?>">Friends</a></li>
+				<li><a href="<?php echo site_url('member/notifications'); ?>" id="notification">Notifications</a></li>
+				<li><a href="#home-search">Find Moments</a></li>
+				<li><a href="<?php echo site_url('member/settings'); ?>">Settings</a></li>
+			</ul>
+		</div>
+		
 		<a href="<?php echo site_url('home/logout'); ?>">Sign out</a>
 	</div>
 	<!-- div id="status" class="info"><?php echo $this->session->flashdata("status"); ?></div -->

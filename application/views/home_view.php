@@ -53,9 +53,14 @@ border-radius:7px 7px 7px 7px ;
 }
 </style>
 
+<?php
+	$display_picture = $this->session->userdata("dp");
+	$cover = $this->session->userdata("cover");
+?>
+
 <div id="profile">
-	<div id="cover"><?php echo img('images/cover/default-cover.png');?></div>
-	<div id="profile-pic"><?php echo img('images/profile_pictures/asif.jpg');?></div>
+	<div id="cover"><?php echo img('images/cover_pictures/'.$cover);?></div>
+	<div id="profile-pic"><?php echo img('images/profile_pictures/'.$display_picture);?></div>
 </div>
 
 <ul id="moments-ul" class="post" data-role="listview" data-filter="true">
