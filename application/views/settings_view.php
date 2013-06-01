@@ -46,8 +46,8 @@
 	</form>
 
 	<h4>Sharing</h4>
-	Facebook <a href="https://www.facebook.com/">  Connect</a><br />
-	Twitter <a href="https://twitter.com/">  Connect</a><br />
+	<a href="https://www.facebook.com/"><?php echo img('images/icons/fb.png');?></a>
+	<a href="https://twitter.com/" ><?php echo img('images/icons/twitter.png');?></a><br />
 
 </div> <!-- content end -->
 

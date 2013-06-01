@@ -1,6 +1,5 @@
 <?php include("header.php"); ?>
 
-<h4 style="text-align:center">Moments</h4>
 <style>
 .activity {
 	float: left;
@@ -24,7 +23,41 @@ float: left;
 -webkit-border-radius:7px 7px 7px 7px ;
 border-radius:7px 7px 7px 7px ;
 }
+
+#profile-pic{
+	height:80px;
+	width:80px;
+	position:absolute;
+	z-index:1000;
+	margin:50px;
+}
+#profile-pic img{
+	width:100%;
+	height:100%;
+}
+#profile{
+	height:200px;
+	width:100%;
+	overflow:hidden;
+
+}
+#cover{
+	height:200px;
+	width:100%;
+	overflow:hidden;
+	position:absolute;
+}
+#cover img{
+	width:100%;
+	height:100%;
+}
 </style>
+
+<div id="profile">
+	<div id="cover"><?php echo img('images/cover/default-cover.png');?></div>
+	<div id="profile-pic"><?php echo img('images/profile_pictures/asif.jpg');?></div>
+</div>
+
 <ul id="moments-ul" class="post" data-role="listview" data-filter="true">
 	<?php foreach($moments as $m): ?>
 	<li>

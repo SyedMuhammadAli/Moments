@@ -136,7 +136,7 @@
 	</div>
     
 	<!--data-position="fixed" removed. Inline styles fix the flickering issue -->
-	<div id="footer-menu" data-role="footer" style="position:fixed;z-index:10;bottom:0;width:100%">
+	<div id="footer-menu" data-role="footer" style="bottom:0;width:100%" data-position="fixed">
 	 	<?php //echo "Loaded in: " . $this->benchmark->elapsed_time();?>
 	 	<div data-role="navbar" >
 	 		</style>
