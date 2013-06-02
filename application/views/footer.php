@@ -142,7 +142,7 @@
 	 		</style>
 			<ul id="footer-nav">
 				<li><a href="#picture-dialog" id="pic-dialog-link" data-rel="popup" data-position-to="window" data-transition="pop"><?php echo img("images/icons/Pictures-Canon-icon.png"); ?>Pictures</a></li>
-				<li><a href="<?php echo site_url('member/check_in'); ?>"><?php echo img("images/icons/Location-icon.png"); ?>Check In</a></li>
+				<li><a href="<?php echo site_url('member/messages'); ?>"><?php echo img("images/icons/Location-icon.png"); ?>Messages</a></li>
 				<li><a href="<?php echo site_url('member/search_media'); ?>"><?php echo img("images/icons/Music-Library-icon.png"); ?>Media</a></li>
 				<li><a href="<?php echo site_url('member/add_moment'); ?>" ><?php echo img("images/icons/Comment-add-icon.png"); ?>Moment</a></li>
 				<li><a href="#sleep-dialog" data-rel="popup" data-position-to="window" data-transition="pop"><?php echo img("images/icons/Tent-Sleep-icon.png"); ?>Sleep</a></li>

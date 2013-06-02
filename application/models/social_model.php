@@ -5,16 +5,6 @@ class Social_model extends CI_Model {
 	//This function gets all the moments for the specific user.
 	function get_moments_for_user($user_id)
 	{
-		/*
-		$this->db->select('moments.user_id as user_id, username, dp, moment_id, msg, time');
-		$this->db->from('moments');
-		$this->db->where('moments.user_id',$user_id);
-		$this->db->join("users", "moments.user_id = users.user_id");
-		
-		$query = $this->db->get(); //This executes the query.
-		
-		return $query->result();*/
-		
 		$q = <<<HERE
 		SELECT u.username, u.dp, m.user_id, m.moment_id, m.location_id, m.media_id, m.msg, m.time
 		FROM moments m, users u
@@ -246,5 +236,65 @@ HERE;
 
 		return $this->db->count_all_results();
 	}
+
+	function get_uid_by_username($username){
+		$this->db->select("user_id");
+		$this->db->where("username", $username);
+
+		return $this->db->get("users")->row();
+	}
+
+	function save_message($receiver, $message_text){
+		$sender_id = $this->session->userdata("uid");
+
+		$receiver_id = $this->get_uid_by_username( str_replace(" ", "", $receiver) );
+
+		if(isset($receiver_id->user_id)){
+			$msg = array(
+				"message_text" => $message_text,
+				"time" => time(),
+				"sender_id" => $sender_id,
+				"receiver_id" => $receiver_id->user_id
+			);
+
+			$this->db->insert("messages", $msg);
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function get_message_threads_list($user_id){
+		$q = <<<HERE
+		SELECT user_id as friend_id, username, dp FROM users WHERE user_id IN (
+			SELECT sender_id AS friend_id FROM messages WHERE receiver_id = {$user_id}
+			UNION 
+			SELECT receiver_id AS friend_id FROM messages WHERE sender_id = {$user_id}
+		);
+HERE;
+
+		$msg_buddies = $this->db->query($q)->result();
+
+		$msgs_list = array();
+
+		foreach($msg_buddies as $mb){
+			$msgs_list[$mb->username]["conversations"] = $this->get_message_thread($user_id, $mb->friend_id);
+			$msgs_list[$mb->username]["dp"] = $mb->dp;
+			$msgs_list[$mb->username]["user_id"] = $mb->friend_id;
+			$msgs_list[$mb->username]["username"] = $mb->username;
+		}
+
+		return $msgs_list;
+	}
+
+	function get_message_thread($receiver_id, $sender_id){
+		$q = <<<HERE
+		SELECT message_id, message_text, time
+		FROM messages 
+		WHERE receiver_id = {$receiver_id} AND sender_id = {$sender_id} OR
+		receiver_id = {$sender_id} AND sender_id = {$receiver_id};
+HERE;
+		return $this->db->query($q)->result();
+	}
 }
-?>

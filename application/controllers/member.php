@@ -303,6 +303,42 @@ class Member extends CI_Controller {
 		redirect("member/add_moment");
 	}
 	
+	function messages($action = null){
+		switch($action){
+			case "create":
+			$this->load->view("message_create", $this->init_page_data());
+			break;
+
+			case "submit":
+			/*
+			validate input:
+			receivers cant have anything but alpha num
+			message should be xss_clean
+			*/
+			$this->social_model->save_message(
+				$this->input->post("receiver"),
+				$this->input->post("message_text")
+			);
+
+			$this->session->set_flashdata("status", "Message sent successfully.");
+
+			redirect("member/messages");
+			break;
+
+			case "view":
+			$data = $this->init_page_data();
+			$data["messages"] = $this->social_model->get_message_thread($this->session->userdata("uid"), $this->uri->segment(3));
+			$this->load->view("message_view", $data);
+			break;
+
+			default: //view listing
+				$uid = $this->session->userdata("uid");
+				$data = $this->init_page_data();
+				$data["message_list"] = $this->social_model->get_message_threads_list($uid);
+				$this->load->view("messages", $data);
+		}
+	}
+	
 	function check_in(){
 		if($this->input->post("is_posting")){
 			$lid = $this->social_model->check_in(
@@ -310,28 +346,28 @@ class Member extends CI_Controller {
 				$this->input->post("longitude"),
 				$this->input->post("formatted_address")
 			);
-			
+
 			/*
 			$this->social_model->save_moment( array(
-				'user_id' => $this->session->userdata("uid"),
-				'media_id' => null,
-				'location_id' => $lid,
-				'msg' => "Checked in at ",
-				'time' => time()-1)
+			'user_id' => $this->session->userdata("uid"),
+			'media_id' => null,
+			'location_id' => $lid,
+			'msg' => "Checked in at ",
+			'time' => time()-1)
 			);
 			*/
-			
+
 			$this->session->set_flashdata("lid", $lid);
 			$this->session->set_flashdata("status", "Located saved successfully.");
-			
+
 			echo '{"lid": ' . $lid . '}';
 		} else {
 			$data = $this->init_page_data();
-			
+
 			$this->load->view("checkin_view", $data);
 		}
 	}
-	
+
 	function receive_picture(){
 		$picture_base64 = $this->input->post("picBase64");
 		$lid = $this->input->post("lid");
