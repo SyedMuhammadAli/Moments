@@ -42,7 +42,7 @@ $("#moment-form-submit").click( function(e){
 	<h4 style="text-align:center;">Share Moment</h4>
 	<br />
 	<form action="<?php echo site_url('member/submit_moment'); ?>" id="moment-form" method="post" data-ajax="false">
-		<input type="text" name="moment_text" placeholder="What's on your mind?" />
+		<input type="text" name="moment_text" placeholder="What's on your mind?" required/>
 		<input type="hidden" name="lid" id="location-field" />
 		<input type="hidden" name="mid" value="<?php echo $this->session->flashdata('mid'); ?>" />
 		<input type="hidden" name="tagged_friends" id="tagged-friends" value=""/>
@@ -62,7 +62,7 @@ $("#moment-form-submit").click( function(e){
 	<a href="#" data-role="button" data-inline="true">I'm at</a>
 	
 	<!-- for i'm with -->
-	<div data-role="popup" id="popupFriends" data-theme="a" class="ui-corner-all">
+	<div data-role="popup" id="popupFriends" data-theme="a" class="ui-corner-all"  style="padding:0 20px 20px 20px;">
 		<form>
 			<fieldset data-role="controlgroup">
 				<legend><h3>Select Friends</h3></legend>

@@ -119,15 +119,30 @@ HERE;
 		return $this->db->query($q)->result();
 	}
 	
+	private function generate_notification($to, $from, $type_id){
+		//generate notification
+		$notification = array(
+			"to_user_id" => $to,
+			"from_user_id" => $from,
+			"is_read" => 0,
+			"time" => time(),
+			"type_id" => $type_id
+		);
+
+		$this->db->insert("notifications", $notification);
+	}
+
 	private function add_moments_with($moment_id, $user_id, $friend_id)
 	{
 		$moments = array(
-			   'moment_id' => $moment_id,
-               'user_id' => $user_id,
-               'friend_id' => $friend_id
-            );
-			
+			'moment_id' => $moment_id,
+            'user_id' => $user_id,
+            'friend_id' => $friend_id
+        );
+
 		$this->db->insert('moments_with', $moments);
+
+		$this->generate_notification($friend_id, $user_id, 1);
 	}
 	
 	function tag_friends($moment_id, $friends_id){
@@ -208,7 +223,7 @@ HERE;
 	function get_notifications(){
 		$uid = $this->session->userdata("uid");
 		
-		$this->db->select("username, fname, lname, from_user_id, is_read, time");
+		$this->db->select("username, fname, lname, from_user_id, is_read, time, type_id");
 		$this->db->from("notifications");
 		$this->db->where("to_user_id", $uid);
 		$this->db->join("users", "notifications.from_user_id = users.user_id");
@@ -244,6 +259,11 @@ HERE;
 		return $this->db->get("users")->row();
 	}
 
+	function get_userinfo_by_uid($uid){
+		$this->db->select("username, dp");
+		return $this->db->get_where("users", array("user_id" => $uid))->row();
+	}
+
 	function save_message($receiver, $message_text){
 		$sender_id = $this->session->userdata("uid");
 
@@ -252,12 +272,14 @@ HERE;
 		if(isset($receiver_id->user_id)){
 			$msg = array(
 				"message_text" => $message_text,
-				"time" => time(),
+				"time" => time()-1,
 				"sender_id" => $sender_id,
 				"receiver_id" => $receiver_id->user_id
 			);
 
 			$this->db->insert("messages", $msg);
+
+			$this->generate_notification($receiver_id->user_id, $sender_id, 2);
 
 			return true;
 		} else {
@@ -290,7 +312,7 @@ HERE;
 
 	function get_message_thread($receiver_id, $sender_id){
 		$q = <<<HERE
-		SELECT message_id, message_text, time
+		SELECT *
 		FROM messages 
 		WHERE receiver_id = {$receiver_id} AND sender_id = {$sender_id} OR
 		receiver_id = {$sender_id} AND sender_id = {$receiver_id};

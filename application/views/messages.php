@@ -4,7 +4,7 @@
     <ul data-theme="d" data-role="listview" data-filter="true" data-filter-placeholder="Search..." data-inset="true">
     <?php foreach ($message_list as $mi): ?>
         <li>
-            <a href="<?php echo site_url('member/messages/view/')."/".$mi["user_id"]; ?>">
+            <a href="<?php echo site_url('member/messages/view/')."/".$mi["user_id"]; ?>" data-ajax="false">
             <?php echo img("images/profile_pictures/".$mi["dp"]); ?>
             <h2><?php echo $mi["username"]; ?></h2>
             <p><?php echo end( $mi["conversations"] )->message_text; ?></p></a>

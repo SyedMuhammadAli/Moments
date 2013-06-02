@@ -14,7 +14,7 @@
 		<li>
 			<a href="#">
 			<!-- username, fname, lname of sender + time, is_read, type_id available -->
-			<p><h3><?php echo $n->username; ?></h3> tagged you in a moment.</p>
+			<p><h3><?php echo $n->username; ?></h3> <?php echo $n->action; ?></p>
 			<h6><?php echo $n->time; ?></h6>
 			</a>
 		</li>

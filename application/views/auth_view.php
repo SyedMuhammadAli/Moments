@@ -10,7 +10,7 @@
 	
 </head> 
 <body> 
-<!-------------------Sign In page starts ------------------->
+<!-------------------Sign In page starts -------------------->
 <div data-role="page" id="signin" data-title="Moments: Signin" >
 
 	<div data-role="header" >
@@ -38,13 +38,16 @@
 	</div><!-- /content -->
 
 </div><!-- /page -->
+
 <!-------------------Sign In page ends ------------------->
 
-<!-------------------Register page starts ------------------->
+<!-------------------Register page starts ---------------->
+
 <div data-role="page" id="register" data-title="Moments: Signup">
 
 	<div data-role="header">
-		<a href="#" data-rel="back" data-icon="back" data-iconpos="notext">Back</a><h1>Moments</h1>
+		<a href="#" data-rel="back" data-icon="back" data-iconpos="notext">Back</a>
+		<h1>Moments</h1>
 	</div><!-- /header -->
 
 	<div data-role="content">	
@@ -80,6 +83,7 @@
 
 </div><!-- /page -->
 <!---------------------Register page ends ---------------->
+
 <!----------------forgot password starts ---------------------------------->
 <div data-role="page" id="forgot" data-title="Moments: Forgot Password">
 

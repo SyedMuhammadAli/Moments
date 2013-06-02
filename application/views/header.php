@@ -89,10 +89,11 @@
     function updateNotificationCount(){
     	$.get("<?php echo site_url('member/notification_count'); ?>")
     	.done( function(res){
+            console.log("Updating notification count to " + res);
     		$("#notification").html("<span class=\"ui-btn-inner\"><span class=\"ui-btn-text\">Notifications (" + JSON.parse(res).count + ")</span></span>");
     	})
     	.fail( function(){
-    		//do nothing for now
+    		console.log("Failed to get notification count.");
     	});
     }
 
@@ -112,7 +113,7 @@
 			<ul>
 				<li><a href="<?php echo site_url('member/search_friend'); ?>">Friends</a></li>
 				<li><a href="<?php echo site_url('member/notifications'); ?>" id="notification">Notifications</a></li>
-				<li><a href="#home-search">Find Moments</a></li>
+				<li><a href="<?php echo site_url('member/search_moments'); ?>">Find Moments</a></li>
 				<li><a href="<?php echo site_url('member/settings'); ?>">Settings</a></li>
 			</ul>
 		</div>

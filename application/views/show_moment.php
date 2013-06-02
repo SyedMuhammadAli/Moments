@@ -58,7 +58,6 @@
 			<p class="ui-li-count"><?php echo "{$moment->time} ago"; ?></p>
 			<br /> <br /> <!-- fix for comemnts meging with the moment -->
 			
-			<span id="comments-heading">Comments</span>
 			<?php foreach($moment->comments as $c): ?>
 			<div class="comment" >
 				<?php echo img("images/profile_pictures/{$c->dp}"); ?>

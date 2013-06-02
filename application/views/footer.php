@@ -1,3 +1,20 @@
+  <script>
+  //to hide text from footer on smaller screens
+  $(document).ready(function() {
+    if($(window).width()<500){
+      $(".text").hide();
+    }
+  });
+
+  $(window).resize(function() {
+    if($(window).width()<500){
+      $(".text").hide();
+    }else{
+      $(".text").show();
+    }
+  });
+  </script>
+
 	<script type="text/javascript" charset="utf-8">
 
     var pictureSource;   // picture source

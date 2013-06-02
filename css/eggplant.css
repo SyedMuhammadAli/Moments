@@ -365,7 +365,7 @@
 .ui-body-c .ui-link:active {
 	color: #2489ce /*{c-body-link-active}*/;
 }
-.ui-btn-up-c {
+/*.ui-btn-up-c {
 	border: 1px solid #cccccc /*{c-bup-border}*/;
 	background: #eeeeee /*{c-bup-background-color}*/;
 	font-weight: bold;
@@ -377,7 +377,7 @@
 	background-image:     -ms-linear-gradient( #ffffff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* IE10 */
 	background-image:      -o-linear-gradient( #ffffff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Opera 11.10+ */
 	background-image:         linear-gradient( #ffffff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/);
-}
+}*/
 .ui-btn-up-c:visited,
 .ui-btn-up-c a.ui-link-inherit {
 	color: #2f3e46 /*{c-bup-color}*/;

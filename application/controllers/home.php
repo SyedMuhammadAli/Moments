@@ -82,7 +82,7 @@ class Home extends CI_Controller
         $this->session->unset_userdata("dp");
         $this->session->unset_userdata("cover");
         
-        redirect("home/index");
+        redirect("home");
     }
     
     //Author: Muhammad Ayub

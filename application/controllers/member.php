@@ -262,13 +262,28 @@ class Member extends CI_Controller {
 		$this->load->view("media_view", $data);
 	}
 	
+	//file_get_contents workaround
+	function url_get_contents($Url) {
+		if (!function_exists('curl_init')){ 
+			die('CURL is not installed!');
+		}
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $Url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$output = curl_exec($ch);
+		curl_close($ch);
+		
+		return $output;
+	}
+
 	function add_media($media_id = null){
 		if(!$media_id) show_404();
 		
 		$media = $this->media_model->findById($media_id);
 		
 		if(!$media){ //if media was not found then add it
-			$media = file_get_contents("https://itunes.apple.com/lookup?id={$media_id}");
+			$media = $this->url_get_contents("https://itunes.apple.com/lookup?id={$media_id}");
 			$media = json_decode($media, true);
 			$media = $media["results"][0];
 			
@@ -321,21 +336,48 @@ class Member extends CI_Controller {
 			);
 
 			$this->session->set_flashdata("status", "Message sent successfully.");
+			
+			$thread_code = $this->input->post("thread_code");
+			if($thread_code)
+				redirect("member/messages/view/{$thread_code}");
+			else
+				redirect("member/messages");
 
-			redirect("member/messages");
 			break;
 
 			case "view":
 			$data = $this->init_page_data();
-			$data["messages"] = $this->social_model->get_message_thread($this->session->userdata("uid"), $this->uri->segment(3));
+
+			$friend_id = $this->uri->segment(4);
+			$my_id = $this->session->userdata("uid");
+
+			$messages = $this->social_model->get_message_thread($my_id, $friend_id);
+
+			foreach ($messages as $m) {
+				$s = $this->social_model->get_userinfo_by_uid($m->sender_id);
+				$r = $this->social_model->get_userinfo_by_uid($m->receiver_id);
+
+				$m->sender_name = $s->username;
+				$m->sender_dp = $s->dp;
+
+				$m->receiver_name = $r->username;
+				$m->receiver_dp = $r->dp;
+
+				$m->time = $this->humanTiming($m->time);
+			}
+
+			$data["messages"] = $messages;
+			$data["friend_id"] = $friend_id;
+			$data["friend_name"] = $this->social_model->get_userinfo_by_uid($friend_id)->username;
+
 			$this->load->view("message_view", $data);
 			break;
 
 			default: //view listing
-				$uid = $this->session->userdata("uid");
-				$data = $this->init_page_data();
-				$data["message_list"] = $this->social_model->get_message_threads_list($uid);
-				$this->load->view("messages", $data);
+			$uid = $this->session->userdata("uid");
+			$data = $this->init_page_data();
+			$data["message_list"] = $this->social_model->get_message_threads_list($uid);
+			$this->load->view("messages", $data);
 		}
 	}
 	
@@ -400,9 +442,20 @@ class Member extends CI_Controller {
 		$data = $this->init_page_data();
 		$data["notifications"] = $this->social_model->get_notifications();
 		
-		foreach($data["notifications"] as $n)
+		foreach($data["notifications"] as $n){
 			$n->time = $this->humanTiming($n->time) . " ago.";
-		
+			
+			switch($n->type_id){
+			case 1:
+				$n->action = "tagged you in a moments.";
+				break;
+			case 2:
+				$n->action = "sent you a private message.";
+				break;
+			default:
+				$n->action = "did something we don't understand.";
+			}
+		}
 		
 		$this->load->view("notifications", $data);
 	}
@@ -410,5 +463,39 @@ class Member extends CI_Controller {
 	function notification_count(){
 		$count = $this->social_model->notification_count();
 		echo '{"count":' . $count . '}';
+	}
+
+	function search_moments($action=null){
+		$data = $this->init_page_data();
+
+		switch($action){
+		case "query":
+		$query = $this->input->post("search_query");
+		$location_id = $this->input->post("location_id");
+
+		$this->load->model("search_model");
+		$data= $this->init_page_data();
+
+		$moments = $this->search_model->process_query($query, $location_id);
+
+		foreach($moments as $m){
+			$m->time = $this->humanTiming($m->time);
+			
+			if($m->media_id)
+				$m->media = $this->media_model->findById($m->media_id);
+				
+			if($m->location_id)
+				$m->location = $this->social_model->findLocationById($m->location_id);
+		}
+
+		$data["moments"] = $moments;
+		$this->load->view("home_view", $data);
+		break;
+
+		default:
+		$data = $this->init_page_data();
+		$this->load->view("search", $data);
+
+		}
 	}
 }
