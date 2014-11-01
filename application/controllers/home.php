@@ -1,5 +1,9 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+//Moments
+//Author: Syed Muhammad Ali
+//Date: 2013-05-10
+
 class Home extends CI_Controller 
 {  
 	function __construct(){
